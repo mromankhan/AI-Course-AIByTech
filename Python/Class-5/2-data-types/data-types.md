@@ -1,7 +1,3 @@
-# Lesson 6: Data Types (Beginner-Friendly)
-
-Welcome to **Lesson 6**.
-
 In the previous lesson, you learned that **variables store values**.
 
 Now the question is:

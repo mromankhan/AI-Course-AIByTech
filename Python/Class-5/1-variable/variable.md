@@ -1,11 +1,3 @@
-# Lesson 5: Variables (Beginner-Friendly)
-
-Welcome to one of the **most important topics in Python**.
-
-Once you understand **variables**, programming becomes much easier.
-
----
-
 # What is a Variable?
 
 A **variable** is a **container that stores data**.

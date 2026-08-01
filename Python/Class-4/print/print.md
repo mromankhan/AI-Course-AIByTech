@@ -1,9 +1,3 @@
-Great! Let's start with **Lesson 4: Understanding `print()`**.
-
----
-
-# Lesson 4: Understanding `print()`
-
 ## What is `print()`?
 
 `print()` is a **built-in Python function**.
