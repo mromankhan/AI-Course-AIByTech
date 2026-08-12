@@ -39,4 +39,4 @@ elif operator == "x":
 elif operator == "/":
     print(num1 / num2)
 elif operator == "%":
-    print((num1 / num2) * 100)
+    print((num1 * num2) / 100)
