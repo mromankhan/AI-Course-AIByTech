@@ -77,8 +77,84 @@
 #         print("Correct password!")
 
 
-count = 1
+# count = 1
 
-while count <= 5:
-    print(count)
-    count += 1
+# while count <= 5:
+#     print(count)
+#     count += 1
+
+
+
+
+
+
+
+# for number in range(1, 11):
+#     if number % 2 == 0:
+#         print(number)
+
+
+
+# for i in range(1, 4):
+#     for j in range(1, 4):
+#         print(i, j)
+
+
+
+
+# for number in range(1, 11):
+
+#     if number == 6:
+#         break
+
+#     print(number)
+
+
+
+
+# for number in range(1, 6):
+
+#     if number == 2:
+#         continue
+
+#     print(number)
+
+
+
+
+
+
+# number = 5
+
+# while number > 0:
+#     print(number)
+#     number -= 1
+
+# print("Go!")
+
+
+
+
+
+
+
+# number = int(input("Enter a number: "))
+
+
+# for i in range(1, 11):
+#     print(number, "x", i, "=", number * i)
+
+
+
+
+
+
+
+
+
+# answer = ""
+
+# while answer != "yes":
+#     answer = input("Do you want to continue? ")
+
+# print("Program ended.")
