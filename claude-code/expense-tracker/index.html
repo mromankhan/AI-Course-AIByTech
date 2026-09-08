@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledger — expense tracker</title>
+<link rel="stylesheet" href="nocturne.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>
+  body{margin:0;background:#0f111c;color:var(--color-text);font-family:var(--font-body)}
+  .scr::-webkit-scrollbar{width:0;height:0}
+  @keyframes toastIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes riseIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  .stage{min-height:100vh;display:flex;gap:56px;align-items:flex-start;justify-content:center;
+    padding:56px 40px 72px;flex-wrap:wrap;background:radial-gradient(120% 80% at 30% 0%, #1b1e30 0%, #0f111c 60%)}
+
+  .bezel{position:relative;width:396px;height:830px;border-radius:42px;padding:9px;
+    background:linear-gradient(160deg,#3f424d,#1c1e2a 55%,#3f424d);
+    box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 1px #22242f}
+  .device{position:relative;width:100%;height:100%;border-radius:34px;overflow:hidden;
+    background:var(--color-bg);display:flex;flex-direction:column}
+
+  .statusbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px 6px;
+    font-size:12px;font-weight:500;letter-spacing:.01em;
+    color:color-mix(in srgb, var(--color-text) 82%, transparent);flex:none}
+  .viewport{flex:1;overflow-y:auto;scrollbar-width:none}
+  .page{padding:12px 20px 108px;display:flex;flex-direction:column;gap:20px}
+
+  /* interaction states the design canvas expressed as style-hover / style-active */
+  .cat-row:hover{opacity:.82}
+  .fab:hover{transform:translateY(-1px)}
+  .key:active{background:#3a3d55 !important}
+  .aside{width:328px;display:flex;flex-direction:column;gap:22px;padding-top:8px}
+  .kicker{font-size:11px;letter-spacing:.09em;text-transform:uppercase;
+    color:color-mix(in srgb, var(--color-text) 45%, transparent)}
+  .tweak-row{display:flex;flex-direction:column;gap:6px}
+  .tweak-row output{font-family:var(--font-heading);font-size:14px}
+  input[type=range]{accent-color:var(--color-accent);width:100%}
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <div class="bezel">
+    <div class="device">
+      <div class="statusbar">
+        <span>9:41</span>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12.5px">
+          <i class="ph ph-wifi-high"></i><i class="ph ph-cell-signal-full"></i><i class="ph ph-battery-high"></i>
+        </div>
+      </div>
+
+      <div class="scr viewport" id="viewport"></div>
+      <div id="nav"></div>
+      <div id="toast"></div>
+    </div>
+  </div>
+
+  <div class="aside">
+    <div>
+      <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-accent-400)">Nocturne · prototype</div>
+      <h2 style="font-size:26px;margin:6px 0 8px;letter-spacing:-.02em">Ledger — expense tracker</h2>
+      <p style="font-size:13.5px;line-height:1.6;color:color-mix(in srgb, var(--color-text) 62%, transparent);text-wrap:pretty">Fully clickable, four screens. Everything you tap is real: the keypad writes a transaction, the ledger and insights recompute from it, and the budget ring follows.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <div class="kicker">Tweaks</div>
+      <div class="tweak-row">
+        <label class="text-muted" style="font-size:12px">Home</label>
+        <div class="seg" id="tw-home">
+          <label class="seg-opt"><input type="radio" name="homeVariant" value="Arc" checked>Arc</label>
+          <label class="seg-opt"><input type="radio" name="homeVariant" value="Ledger">Ledger</label>
+        </div>
+      </div>
+      <div class="tweak-row">
+        <label class="text-muted" style="font-size:12px">Add expense</label>
+        <div class="seg" id="tw-entry">
+          <label class="seg-opt"><input type="radio" name="entryVariant" value="Keypad first" checked>Keypad first</label>
+          <label class="seg-opt"><input type="radio" name="entryVariant" value="Category first">Category first</label>
+        </div>
+      </div>
+      <div class="tweak-row">
+        <label class="text-muted" style="font-size:12px">Monthly budget <output id="tw-budget-out">₹40,000</output></label>
+        <input id="tw-budget" type="range" min="10000" max="120000" step="1000" value="40000">
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <div class="kicker">Assumptions</div>
+      <div style="font-size:13px;line-height:1.65;color:color-mix(in srgb, var(--color-text) 68%, transparent);display:flex;flex-direction:column;gap:7px">
+        <div>One person, INR, ₹40,000 monthly cap, manual keypad entry.</div>
+        <div>Warm-but-quiet copy: it encourages, it never scolds.</div>
+        <div>Nocturne's rule: the accent is a line and a glow — no saturated floods, no second hue. Categories are steps of the one accent ramp.</div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:11px">
+      <div class="kicker">Variants</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="padding:11px 12px;border-radius:12px;background:var(--color-surface);box-shadow:var(--shadow-sm);font-size:12.5px;line-height:1.55">
+          <strong style="font-weight:600">Home</strong> — <em>Arc</em>: budget ring, one glowing card, pace nudge. <em>Ledger</em>: big number, thin bar, three stat tiles.
+        </div>
+        <div style="padding:11px 12px;border-radius:12px;background:var(--color-surface);box-shadow:var(--shadow-sm);font-size:12.5px;line-height:1.55">
+          <strong style="font-weight:600">Add expense</strong> — <em>Keypad-first</em>: amount, then a category rail. <em>Category-first</em>: pick the tile, then type — better for habit entry.
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <div class="kicker">Next steps</div>
+      <div style="font-size:13px;line-height:1.65;color:color-mix(in srgb, var(--color-text) 60%, transparent)">Budget setup + limit alerts · category detail screen · recurring detection for rent and subscriptions · onboarding.</div>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

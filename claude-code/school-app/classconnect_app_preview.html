@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>ClassConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@700;800&family=Noto+Nastaliq+Urdu:wght@500;700&display=swap" rel="stylesheet">
+<style>
+
+  :root{
+    --bg:#F3F6F8;
+    --surface:#FFFFFF;
+    --ink:#182333;
+    --ink-soft:#5C6B7A;
+    --ink-faint:#93A2AF;
+    --navy:#1B3A6B;
+    --navy-deep:#122A50;
+    --navy-tint:#E7ECF3;
+    --emerald:#1E9E6B;
+    --emerald-soft:#DFF5EA;
+    --emerald-text:#146A48;
+    --blue:#3B6EA8;
+    --blue-soft:#E4EDF6;
+    --blue-text:#2A527D;
+    --yellow:#D9A21B;
+    --yellow-soft:#FBF1D9;
+    --yellow-text:#8A6A10;
+    --orange:#E08A2E;
+    --orange-soft:#FCEBDA;
+    --orange-text:#A85D1C;
+    --coral:#E15A5A;
+    --coral-soft:#FBE6E6;
+    --coral-text:#A83232;
+    --line:#E3EAEE;
+    --shadow-sm: 0 4px 14px -6px rgba(27,58,107,0.14);
+    --shadow: 0 10px 30px -12px rgba(27,58,107,0.18);
+    --radius-lg:22px;
+    --radius-md:16px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:
+      radial-gradient(circle at 15% 10%, rgba(27,58,107,0.10), transparent 40%),
+      radial-gradient(circle at 88% 15%, rgba(30,158,107,0.12), transparent 42%),
+      radial-gradient(circle at 50% 100%, rgba(217,162,27,0.10), transparent 45%),
+      #EAF0F2;
+    min-height:100%;
+    color:var(--ink);
+    padding:44px 16px 70px;
+    display:flex; flex-direction:column; align-items:center; gap:26px;
+  }
+  button{font:inherit; background:none; border:none; cursor:pointer; color:inherit;}
+  ul{list-style:none;}
+  input,textarea{font:inherit;}
+  .ur{font-family:'Noto Nastaliq Urdu', serif; direction:rtl; unicode-bidi:embed; line-height:1.9;}
+
+  /* ---------- Top brand + language toggle ---------- */
+  .top-bar{display:flex; align-items:center; gap:18px; flex-wrap:wrap; justify-content:center;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-mark{width:36px; height:36px; border-radius:11px; background:linear-gradient(135deg, var(--navy), var(--emerald)); display:flex; align-items:center; justify-content:center; box-shadow:0 6px 14px -5px rgba(27,58,107,0.5);}
+  .brand-mark svg{width:19px; height:19px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .brand-name{font-family:'Manrope',sans-serif; font-weight:800; font-size:20px; color:var(--navy-deep);}
+  .brand-tag{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
+  .lang-toggle{display:flex; background:#fff; padding:4px; border-radius:100px; box-shadow:var(--shadow-sm); gap:2px;}
+  .lang-btn{padding:7px 14px; border-radius:100px; font-size:12.5px; font-weight:700; color:var(--ink-soft);}
+  .lang-btn.active{background:var(--navy); color:#fff;}
+
+  .phones-row{display:flex; gap:44px; flex-wrap:wrap; justify-content:center; align-items:flex-start;}
+  .phone-col{display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .phone-label{display:flex; align-items:center; gap:8px; font-family:'Manrope',sans-serif; font-weight:800; font-size:14.5px; color:var(--navy-deep);}
+  .phone-label .role-dot{width:8px; height:8px; border-radius:50%;}
+  .phone-col.teacher .role-dot{background:var(--navy);}
+  .phone-col.parent .role-dot{background:var(--emerald);}
+
+  /* ---------- Phone frame ---------- */
+  .phone{width:380px; height:800px; background:#0C1720; border-radius:52px; padding:13px; position:relative; box-shadow:0 36px 65px -25px rgba(12,23,32,0.45), 0 12px 28px -12px rgba(12,23,32,0.3); flex-shrink:0;}
+  .phone::before{content:''; position:absolute; top:13px; left:50%; transform:translateX(-50%); width:118px; height:26px; background:#0C1720; border-radius:0 0 16px 16px; z-index:80;}
+  .phone-screen{width:100%; height:100%; background:var(--bg); border-radius:39px; overflow:hidden; position:relative; display:flex; flex-direction:column;}
+
+  .statusbar{flex-shrink:0; height:42px; padding:10px 24px 0 26px; display:flex; align-items:center; justify-content:space-between; font-family:'Manrope',sans-serif; font-weight:700; font-size:13.5px; color:var(--ink);}
+  .statusbar .status-icons{display:flex; align-items:center; gap:5px;}
+  .statusbar svg{stroke:var(--ink); fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+
+  .app-body{flex:1; position:relative; overflow:hidden;}
+  .screen{position:absolute; inset:0; display:none; flex-direction:column; height:100%;}
+  .screen.active{display:flex;}
+  .app-header{flex-shrink:0; padding:4px 18px 12px;}
+  .app-content{flex:1; overflow-y:auto; padding:2px 18px 100px; scrollbar-width:none;}
+  .app-content::-webkit-scrollbar{display:none;}
+
+  .eyebrow{font-size:12px; color:var(--ink-soft); font-weight:500;}
+  h1.page-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:21px; color:var(--navy-deep); letter-spacing:-0.01em; margin-top:2px;}
+  h2.section-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:14.5px; color:var(--navy-deep); margin:20px 0 10px;}
+  h2.section-title:first-child{margin-top:2px;}
+  .section-sub{font-size:12px; color:var(--ink-soft); margin-top:-6px; margin-bottom:10px;}
+
+  .icon{fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .icon-sm{width:14px; height:14px;}
+  .icon-md{width:19px; height:19px;}
+  .icon-lg{width:24px; height:24px;}
+
+  /* ---------- Cards ---------- */
+  .card{background:var(--surface); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:15px;}
+  .card + .card{margin-top:11px;}
+
+  /* ---------- Buttons ---------- */
+  .btn-primary{width:100%; background:var(--navy); color:#fff; text-align:center; padding:13px; border-radius:14px; font-size:14px; font-weight:700; box-shadow:0 8px 18px -8px rgba(27,58,107,0.5);}
+  .btn-secondary{width:100%; background:var(--emerald-soft); color:var(--emerald-text); text-align:center; padding:11px; border-radius:12px; font-size:13px; font-weight:700;}
+  .btn-pill-sm{font-size:11.5px; font-weight:700; color:#fff; background:var(--navy); padding:7px 13px; border-radius:100px; display:inline-flex; align-items:center; gap:5px;}
+  .btn-pill-sm svg{width:12px; height:12px;}
+
+  /* ---------- Badges ---------- */
+  .badge{display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700; padding:4px 9px; border-radius:100px; white-space:nowrap;}
+  .badge svg{width:10.5px; height:10.5px;}
+  .badge-safe{background:var(--emerald-soft); color:var(--emerald-text);}
+  .badge-warning{background:var(--yellow-soft); color:var(--yellow-text);}
+  .badge-danger{background:var(--coral-soft); color:var(--coral-text);}
+  .badge-info{background:var(--blue-soft); color:var(--blue-text);}
+  .badge-neutral{background:#EEF2F4; color:var(--ink-soft);}
+
+  /* ---------- Grade badges ---------- */
+  .grade-badge{width:29px; height:29px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-weight:800; font-size:12.5px; flex-shrink:0;}
+  .grade-a{background:var(--emerald-soft); color:var(--emerald-text);}
+  .grade-b{background:var(--blue-soft); color:var(--blue-text);}
+  .grade-c{background:var(--yellow-soft); color:var(--yellow-text);}
+  .grade-d{background:var(--orange-soft); color:var(--orange-text);}
+  .grade-f{background:var(--coral-soft); color:var(--coral-text);}
+
+  /* ---------- Avatars ---------- */
+  .avatar-sm{width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-weight:800; color:#fff; font-size:12.5px; flex-shrink:0;}
+  .av-1{background:linear-gradient(135deg,#1B3A6B,#1E9E6B);}
+  .av-2{background:linear-gradient(135deg,#1E9E6B,#3B6EA8);}
+  .av-3{background:linear-gradient(135deg,#D9A21B,#1B3A6B);}
+  .av-4{background:linear-gradient(135deg,#3B6EA8,#1E9E6B);}
+  .av-5{background:linear-gradient(135deg,#1B3A6B,#D9A21B);}
+  .av-6{background:linear-gradient(135deg,#1E9E6B,#122A50);}
+  .avatar-lg{width:52px; height:52px; font-size:17px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-family:'Manrope',sans-serif; font-weight:800; color:#fff; flex-shrink:0;}
+
+  /* ---------- Rows / list items ---------- */
+  .list-row{display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .list-row:last-child{border-bottom:none;}
+  .list-main{flex:1; min-width:0;}
+  .list-title{font-size:13.5px; font-weight:600; color:var(--ink);}
+  .list-sub{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .chev{color:var(--ink-faint); flex-shrink:0;}
+  .icon-btn{width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:var(--ink-faint); flex-shrink:0;}
+
+  /* ---------- Chips / segmented ---------- */
+  .chip-select{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{padding:8px 13px; border-radius:100px; background:#EEF2F4; font-size:12px; font-weight:600; color:var(--ink-soft);}
+  .chip.active{background:var(--navy); color:#fff;}
+
+  .segmented{display:flex; background:#E3ECEF; padding:4px; border-radius:100px; margin:2px 0 15px;}
+  .segmented button{flex:1; padding:8px; border-radius:100px; font-size:12.5px; font-weight:700; color:var(--ink-soft);}
+  .segmented button.active{background:#fff; color:var(--navy-deep); box-shadow:var(--shadow-sm);}
+  .seg-view{display:none;}
+  .seg-view.show{display:block;}
+
+  .grade-chip-row{display:flex; gap:7px; overflow-x:auto; padding-bottom:2px; scrollbar-width:none;}
+  .grade-chip-row::-webkit-scrollbar{display:none;}
+  .grade-chip{flex-shrink:0; padding:9px 14px; border-radius:100px; background:#fff; box-shadow:var(--shadow-sm); font-size:12.5px; font-weight:700; color:var(--ink-soft);}
+  .grade-chip.active{background:var(--navy); color:#fff;}
+  .grade-chip.locked{color:var(--ink-faint); display:flex; align-items:center; gap:4px;}
+  .grade-chip.locked svg{width:11px; height:11px;}
+
+  /* ---------- Forms ---------- */
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:11.5px; font-weight:700; color:var(--ink-soft); margin-bottom:6px;}
+  .field input, .field textarea{width:100%; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13px; color:var(--ink); background:#fff;}
+  .field textarea{resize:none; min-height:64px; font-family:inherit; line-height:1.5;}
+  .field input::placeholder, .field textarea::placeholder{color:var(--ink-faint);}
+
+  /* ---------- Attendance status buttons ---------- */
+  .att-btns{display:flex; gap:5px;}
+  .att-btn{width:32px; height:29px; border-radius:8px; background:#EEF2F4; font-size:10.5px; font-weight:800; color:var(--ink-soft); display:flex; align-items:center; justify-content:center;}
+  .att-btn.p.active{background:var(--emerald); color:#fff;}
+  .att-btn.a.active{background:var(--coral); color:#fff;}
+  .att-btn.l.active{background:var(--yellow); color:#5A430C;}
+  .att-btn.le.active{background:var(--blue); color:#fff;}
+
+  .status-track{height:10px; border-radius:100px; overflow:hidden; display:flex; background:#EEF2F4;}
+  .status-seg.present{background:var(--emerald);}
+  .status-seg.absent{background:var(--coral);}
+  .status-seg.late{background:var(--yellow);}
+  .status-seg.leave{background:var(--blue);}
+  .status-legend{display:flex; gap:12px; flex-wrap:wrap; margin-top:9px;}
+  .legend-item{display:flex; align-items:center; gap:6px; font-size:11px; color:var(--ink-soft);}
+  .legend-dot{width:8px; height:8px; border-radius:50%; flex-shrink:0;}
+
+  /* ---------- Ring progress ---------- */
+  .ring-wrap{position:relative; width:78px; height:78px; flex-shrink:0;}
+  .ring-wrap svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .ring-track{fill:none; stroke:#EEF2F4; stroke-width:9;}
+  .ring-progress{fill:none; stroke:var(--emerald); stroke-width:9; stroke-linecap:round;}
+  .ring-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .ring-center b{font-family:'Manrope',sans-serif; font-size:16px; color:var(--navy-deep);}
+  .ring-center span{font-size:9px; color:var(--ink-soft);}
+
+  /* ---------- Calendar ---------- */
+  .cal-dow{display:grid; grid-template-columns:repeat(7,1fr); margin-bottom:6px;}
+  .cal-dow span{text-align:center; font-size:9.5px; color:var(--ink-faint); font-weight:800;}
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:4px;}
+  .cal-cell{aspect-ratio:1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700;}
+  .cal-present{background:var(--emerald-soft); color:var(--emerald-text);}
+  .cal-absent{background:var(--coral-soft); color:var(--coral-text);}
+  .cal-late{background:var(--yellow-soft); color:var(--yellow-text);}
+  .cal-holiday{background:var(--navy-tint); color:var(--navy);}
+  .cal-weekend{color:#C3CDD6;}
+  .cal-blank{visibility:hidden;}
+
+  /* ---------- Feedback timeline ---------- */
+  .fb-card{margin-bottom:12px;}
+  .fb-week{font-size:12px; font-weight:700; color:var(--ink-faint); margin-bottom:8px;}
+  .fb-cat-row{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:10px;}
+  .fb-cat{background:#EEF2F4; border-radius:10px; padding:6px 10px; font-size:10.5px; font-weight:700; color:var(--ink-soft);}
+  .fb-cat b{color:var(--navy-deep); font-weight:800;}
+  .fb-line{font-size:12px; color:var(--ink); line-height:1.5; margin-top:7px;}
+  .fb-line strong{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:0.03em; color:var(--ink-faint); font-weight:800; margin-bottom:2px;}
+  .fb-line.concern{background:var(--coral-soft); padding:9px 10px; border-radius:10px; margin-top:9px;}
+  .fb-line.concern strong{color:var(--coral-text);}
+
+  /* ---------- Chip groups (feedback entry) ---------- */
+  .chip-group{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:13px;}
+  .chip-group .g-chip{padding:7px 12px; border-radius:100px; background:#EEF2F4; font-size:11.5px; font-weight:600; color:var(--ink-soft);}
+  .chip-group .g-chip.active{background:var(--emerald); color:#fff;}
+
+  /* ---------- Toggle ---------- */
+  .toggle{position:relative; width:40px; height:24px; flex-shrink:0;}
+  .toggle input{opacity:0; width:100%; height:100%; position:absolute; margin:0; cursor:pointer; z-index:2;}
+  .toggle-track{position:absolute; inset:0; background:#D7E1E6; border-radius:100px; transition:background .2s;}
+  .toggle-thumb{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.25); transition:transform .2s;}
+  .toggle input:checked + .toggle-track{background:var(--emerald);}
+  .toggle input:checked ~ .toggle-thumb{transform:translateX(16px);}
+
+  .setting-row{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line);}
+  .setting-row:last-child{border-bottom:none;}
+  .setting-icon{width:32px; height:32px; border-radius:10px; background:var(--navy-tint); color:var(--navy); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .setting-main{flex:1; min-width:0;}
+  .setting-title{font-size:12.5px; font-weight:600; color:var(--ink);}
+  .setting-sub{font-size:11px; color:var(--ink-soft); margin-top:2px; line-height:1.4;}
+
+  /* ---------- Messages ---------- */
+  .msg-row{display:flex; margin-bottom:11px;}
+  .msg-row.out{justify-content:flex-end;}
+  .bubble{max-width:78%; padding:10px 13px; border-radius:16px; font-size:12.5px; line-height:1.5;}
+  .msg-row.in .bubble{background:#fff; color:var(--ink); border-bottom-left-radius:4px; box-shadow:var(--shadow-sm);}
+  .msg-row.out .bubble{background:var(--navy); color:#fff; border-bottom-right-radius:4px;}
+  .msg-time{font-size:10px; color:var(--ink-faint); margin-top:4px;}
+  .msg-input-bar{display:flex; align-items:center; gap:8px; background:#fff; border-radius:100px; padding:6px 6px 6px 14px; box-shadow:var(--shadow-sm); margin-top:6px;}
+  .msg-input-bar span{flex:1; font-size:12.5px; color:var(--ink-faint);}
+  .msg-send{width:34px; height:34px; border-radius:50%; background:var(--navy); color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .msg-send svg{width:15px; height:15px;}
+  .meeting-confirm{display:none; margin-top:10px; background:var(--emerald-soft); color:var(--emerald-text); border-radius:12px; padding:11px 13px; font-size:12px; font-weight:600; align-items:center; gap:8px;}
+  .meeting-confirm.show{display:flex;}
+
+  /* ---------- Overlay ---------- */
+  .overlay{position:absolute; inset:0; z-index:40; background:var(--bg); display:flex; flex-direction:column; transform:translateX(100%); transition:transform .35s cubic-bezier(.32,.72,.35,1);}
+  .overlay.open{transform:translateX(0);}
+  .ov-panel{display:none; flex-direction:column; height:100%;}
+  .ov-panel.active{display:flex;}
+  .ov-header{flex-shrink:0; padding:14px 18px 14px; display:flex; align-items:center; gap:12px;}
+  .ov-back{width:32px; height:32px; border-radius:10px; background:var(--surface); box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; color:var(--navy-deep); flex-shrink:0;}
+  .ov-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:15.5px; color:var(--navy-deep);}
+  .ov-sub{font-size:11.5px; color:var(--ink-soft); margin-top:1px;}
+  .ov-content{flex:1; overflow-y:auto; padding:2px 18px 90px; scrollbar-width:none;}
+  .ov-content::-webkit-scrollbar{display:none;}
+
+  /* ---------- Login ---------- */
+  .login-wrap{flex:1; display:flex; flex-direction:column; justify-content:center; padding:0 26px 60px;}
+  .login-logo{width:54px; height:54px; border-radius:18px; background:linear-gradient(135deg, var(--navy), var(--emerald)); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 10px 22px -8px rgba(27,58,107,0.5);}
+  .login-logo svg{width:28px; height:28px; stroke:#fff; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .login-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:19px; text-align:center; color:var(--navy-deep);}
+  .login-sub{font-size:12.5px; color:var(--ink-soft); text-align:center; margin-top:5px; margin-bottom:26px;}
+  .login-field{display:flex; align-items:center; gap:10px; background:#fff; border:1.5px solid var(--line); border-radius:13px; padding:12px 14px; margin-bottom:12px;}
+  .login-field svg{color:var(--ink-faint); flex-shrink:0;}
+  .login-field input{border:none; outline:none; flex:1; font-size:13px; background:transparent; color:var(--ink);}
+  .login-foot{text-align:center; font-size:11.5px; color:var(--ink-faint); margin-top:18px;}
+
+  /* ---------- Bottom nav ---------- */
+  .bottom-nav{flex-shrink:0; height:74px; background:rgba(255,255,255,0.95); backdrop-filter:blur(10px); border-top:1px solid var(--line); align-items:center; padding:0 4px 10px; display:none;}
+  .phone-screen.logged-in .bottom-nav{display:flex;}
+  .nav-btn{flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; color:var(--ink-faint); padding-top:9px;}
+  .nav-btn .icon{width:21px; height:21px; stroke-width:1.7;}
+  .nav-btn span{font-size:10px; font-weight:700;}
+  .nav-btn.active{color:var(--navy);}
+  .nav-btn.active .icon{stroke-width:2;}
+
+  .hero{display:flex; align-items:center; gap:12px; background:linear-gradient(135deg,#DFF5EA 0%, #E4EDF6 65%, #FBF1D9 100%); border-radius:var(--radius-lg); padding:15px 16px; box-shadow:var(--shadow-sm);}
+  .hero-icon{width:40px; height:40px; border-radius:13px; background:#fff; display:flex; align-items:center; justify-content:center; color:var(--emerald); flex-shrink:0; box-shadow:var(--shadow-sm);}
+  .hero-text{flex:1;}
+  .hero-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:13.5px; color:var(--navy-deep);}
+  .hero-sub{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+
+  .quick-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:9px;}
+  .quick-item{background:var(--surface); border-radius:var(--radius-md); padding:12px 8px; text-align:center; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; align-items:center; gap:7px;}
+  .quick-icon{width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center;}
+  .quick-item span{font-size:10.5px; font-weight:700; color:var(--ink); line-height:1.3;}
+
+  .stat-row{display:flex; gap:9px;}
+  .stat-box{flex:1; background:var(--surface); border-radius:var(--radius-md); padding:11px; box-shadow:var(--shadow-sm); text-align:center;}
+  .stat-box b{display:block; font-family:'Manrope',sans-serif; font-weight:800; font-size:16px; color:var(--navy-deep);}
+  .stat-box span{font-size:10px; color:var(--ink-soft);}
+
+  table.mini-table{width:100%; border-collapse:collapse;}
+  table.mini-table th{text-align:left; font-size:10px; color:var(--ink-faint); font-weight:800; text-transform:uppercase; letter-spacing:0.03em; padding-bottom:8px; border-bottom:1.5px solid var(--line);}
+  table.mini-table td{padding:9px 0; border-bottom:1px solid var(--line); font-size:12.5px; color:var(--ink); vertical-align:middle;}
+  table.mini-table tr:last-child td{border-bottom:none;}
+  table.mini-table td.num{font-weight:700; color:var(--navy-deep);}
+
+  .remark-quote{background:var(--navy-tint); border-radius:14px; padding:13px 14px; margin-top:6px;}
+  .remark-quote p{font-size:12px; color:var(--ink); line-height:1.55; font-style:italic;}
+  .remark-quote .quote-by{font-size:10.5px; color:var(--ink-soft); font-weight:700; margin-top:8px; font-style:normal;}
+
+
+  /* ===== App-shell overrides (real device, not a phone mockup) ===== */
+  html,body{height:100%; width:100%; overflow:hidden;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--bg);
+    padding:0; margin:0;
+    display:block;
+    color:var(--ink);
+  }
+  .app-shell{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    background:var(--bg);
+    display:none;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .app-shell.active-shell{display:flex;}
+  .app-header{padding-top:calc(14px + env(safe-area-inset-top));}
+  .bottom-nav{padding-bottom:calc(10px + env(safe-area-inset-bottom)); height:auto; min-height:70px;}
+  .ov-header{padding-top:calc(14px + env(safe-area-inset-top));}
+  .login-wrap{padding-top:env(safe-area-inset-top);}
+
+  /* ===== Role select screen ===== */
+  .role-screen{
+    position:fixed; inset:0; z-index:5;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(27,58,107,0.10), transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(30,158,107,0.14), transparent 45%),
+      radial-gradient(circle at 50% 100%, rgba(217,162,27,0.10), transparent 45%),
+      var(--bg);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:32px 28px calc(32px + env(safe-area-inset-bottom));
+    text-align:center;
+  }
+  .role-logo{width:64px; height:64px; border-radius:20px; background:linear-gradient(135deg, var(--navy), var(--emerald)); display:flex; align-items:center; justify-content:center; margin-bottom:18px; box-shadow:0 14px 26px -10px rgba(27,58,107,0.5);}
+  .role-logo svg{width:32px; height:32px; stroke:#fff; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+  .role-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:24px; color:var(--navy-deep);}
+  .role-sub{font-size:13.5px; color:var(--ink-soft); margin-top:6px; margin-bottom:36px; max-width:280px;}
+  .role-btn{
+    width:100%; max-width:320px;
+    display:flex; align-items:center; gap:14px;
+    background:var(--surface); border-radius:18px; padding:16px 18px;
+    box-shadow:var(--shadow-sm); margin-bottom:14px; text-align:left;
+  }
+  .role-btn .role-btn-icon{width:44px; height:44px; border-radius:13px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .role-btn.teacher .role-btn-icon{background:var(--navy-tint); color:var(--navy);}
+  .role-btn.parent .role-btn-icon{background:var(--emerald-soft); color:var(--emerald-text);}
+  .role-btn-title{font-family:'Manrope',sans-serif; font-weight:800; font-size:14.5px; color:var(--navy-deep);}
+  .role-btn-sub{font-size:11.5px; color:var(--ink-soft); margin-top:2px;}
+  .role-btn .chev{margin-left:auto;}
+  .role-foot{font-size:11px; color:var(--ink-faint); margin-top:22px;}
+
+  .switch-role-btn{width:32px; height:32px; border-radius:10px; background:#fff; box-shadow:var(--shadow-sm); display:flex; align-items:center; justify-content:center; color:var(--ink-soft); flex-shrink:0;}
+
+</style>
+</head>
+<body>
+
+  <!-- ================= ROLE SELECT ================= -->
+  <div class="role-screen" id="role-select">
+    <div class="role-logo"><svg viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"/><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"/></svg></div>
+    <div class="role-title">ClassConnect</div>
+    <div class="role-sub">Connecting classrooms and homes. Choose how you'd like to sign in.</div>
+
+    <button class="role-btn teacher" id="go-teacher">
+      <div class="role-btn-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"/></svg></div>
+      <div><div class="role-btn-title">Class Teacher Login</div><div class="role-btn-sub">Manage your class, attendance &amp; results</div></div>
+      <svg class="icon icon-md chev" viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+    </button>
+
+    <button class="role-btn parent" id="go-parent">
+      <div class="role-btn-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 21s7-7.2 7-12.2A7 7 0 0 0 5 8.8C5 13.8 12 21 12 21Z"/><circle cx="12" cy="9" r="2.4"/></svg></div>
+      <div><div class="role-btn-title">Parent Login</div><div class="role-btn-sub">View your child's academic &amp; attendance reports</div></div>
+      <svg class="icon icon-md chev" viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5"/></svg>
+    </button>
+
+    <div class="role-foot">Greenwood Public School · Powered by ClassConnect</div>
+  </div>
+
+  <!-- ================= TEACHER APP ================= -->
+<div class="phone-screen" data-prefix="t" id="teacher-shell">
+
+<div class="app-body">
+<!-- ---- Teacher Login ---- -->
+<section class="screen active" id="t-login">
+<div class="login-wrap">
+<div class="login-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"></path></svg></div>
+<div class="login-title">Class Teacher Login</div>
+<div class="login-sub">Sign in to manage your class</div>
+<div class="login-field">
+<svg class="icon icon-md" viewBox="0 0 24 24"><rect height="13" rx="2" width="17" x="3.5" y="5.5"></rect><path d="M4 6.5l8 6.5 8-6.5"></path></svg>
+<input readonly="" type="text" value="sana.tariq@greenwoodschool.edu"/>
+</div>
+<div class="login-field">
+<svg class="icon icon-md" viewBox="0 0 24 24"><rect height="9.5" rx="2.2" width="13" x="5.5" y="10.5"></rect><path d="M8.3 10.5V7.8a3.7 3.7 0 0 1 7.4 0v2.7"></path></svg>
+<input readonly="" type="password" value="••••••••"/>
+</div>
+<button class="btn-primary" id="teacher-login-btn" style="margin-top:8px;">Log In</button>
+<div class="login-foot">Employee of Greenwood Public School? Contact IT for access.</div>
+</div>
+</section>
+<!-- ---- Teacher Dashboard ---- -->
+<section class="screen" id="t-dashboard">
+<div class="app-header">
+<div class="eyebrow">Monday, 31 August</div>
+<h1 class="page-title" data-en="Welcome back, Ms. Tariq" data-ur="خوش آمدید، مس طارق">Welcome back, Ms. Tariq</h1>
+</div>
+<div class="app-content">
+<div class="hero">
+<div class="hero-icon"><svg class="icon icon-lg" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5"></path><circle cx="17" cy="9" r="2.4"></circle><path d="M15.5 14.2c2.4.4 4 2 4.5 4.3"></path></svg></div>
+<div class="hero-text">
+<div class="hero-title">Grade 5 — Section A</div>
+<div class="hero-sub">32 students · Class Teacher</div>
+</div>
+<button class="icon-btn" data-open-overlay="notifications" style="background:#fff; box-shadow:var(--shadow-sm); position:relative;">
+<svg class="icon icon-md" viewBox="0 0 24 24"><path d="M6.5 8.5a5.5 5.5 0 0 1 11 0c0 6.5 2.5 7.5 2.5 7.5h-16s2.5-1 2.5-7.5Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg>
+</button>
+</div>
+<h2 class="section-title">Today's attendance</h2>
+<div class="card">
+<div style="display:flex; align-items:center; justify-content:space-between;">
+<div><b style="font-family:'Manrope',sans-serif; font-size:22px; color:var(--navy-deep);">85%</b><span style="font-size:11.5px; color:var(--ink-soft); margin-left:4px;">present</span></div>
+<span class="badge badge-safe"><svg stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"></path></svg>Marked</span>
+</div>
+<div class="status-track" style="margin-top:11px;">
+<div class="status-seg present" style="width:85%"></div>
+<div class="status-seg absent" style="width:6%"></div>
+<div class="status-seg late" style="width:6%"></div>
+<div class="status-seg leave" style="width:3%"></div>
+</div>
+<div class="status-legend">
+<div class="legend-item"><span class="legend-dot" style="background:var(--emerald)"></span>27 Present</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>2 Absent</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>2 Late</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>1 Leave</div>
+</div>
+</div>
+<h2 class="section-title">Quick actions</h2>
+<div class="quick-grid">
+<button class="quick-item" data-open-overlay="attendance">
+<div class="quick-icon" style="background:var(--emerald-soft); color:var(--emerald-text);"><svg class="icon icon-md" viewBox="0 0 24 24"><rect height="15" rx="2.5" width="17" x="3.5" y="5"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v4M16 3v4"></path><path d="M8.5 14.5l2 2 4-4.5"></path></svg></div>
+<span>Mark Attendance</span>
+</button>
+<button class="quick-item" data-open-overlay="subjects">
+<div class="quick-icon" style="background:var(--blue-soft); color:var(--blue-text);"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div>
+<span>Manage Subjects</span>
+</button>
+<button class="quick-item" data-open-overlay="create-test">
+<div class="quick-icon" style="background:var(--yellow-soft); color:var(--yellow-text);"><svg class="icon icon-md" viewBox="0 0 24 24"><rect height="16" rx="2.3" width="14" x="5" y="4.5"></rect><path d="M9 4.5V3.3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V4.5"></path><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4.5"></path></svg></div>
+<span>New Test</span>
+</button>
+<button class="quick-item" data-open-overlay="results-entry">
+<div class="quick-icon" style="background:var(--emerald-soft); color:var(--emerald-text);"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<span>Enter Results</span>
+</button>
+<button class="quick-item" data-screen-link="tests" data-seg="finalresults">
+<div class="quick-icon" style="background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M12 3.5 19 6.5v5c0 5.2-3.6 8.7-7 9.9-3.4-1.2-7-4.7-7-9.9v-5Z"></path><path d="M9 12.2l2 2 4-4.2"></path></svg></div>
+<span>Final Results</span>
+</button>
+<button class="quick-item" data-screen-link="feedback">
+<div class="quick-icon" style="background:var(--coral-soft); color:var(--coral-text);"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div>
+<span>Weekly Feedback</span>
+</button>
+</div>
+<h2 class="section-title">Upcoming tests</h2>
+<div class="card">
+<div class="list-row">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--yellow-soft); color:var(--yellow-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div class="list-main"><div class="list-title">Mathematics — Ch.4 Fractions</div><div class="list-sub">Sep 3 · Grade 5-A · 50 marks</div></div>
+</div>
+<div class="list-row">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--emerald-soft); color:var(--emerald-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div class="list-main"><div class="list-title">Science — Ch.5 Human Body</div><div class="list-sub">Sep 8 · Grade 5-A · 50 marks</div></div>
+</div>
+</div>
+<h2 class="section-title">Pending feedback</h2>
+<div class="card" style="display:flex; align-items:center; gap:12px;">
+<div class="quick-icon" style="background:var(--coral-soft); color:var(--coral-text); flex-shrink:0;"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div>
+<div style="flex:1;"><div class="list-title">6 of 32 students still need this week's feedback</div><div class="list-sub">Due by Friday</div></div>
+<button class="icon-btn chev" data-screen-link="feedback"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5"></path></svg></button>
+</div>
+</div>
+</section>
+<!-- ---- Teacher Classes ---- -->
+<section class="screen" id="t-classes">
+<div class="app-header">
+<div class="eyebrow" data-en="Classes" data-ur="کلاسیں">Classes</div>
+<h1 class="page-title" data-en="Your classes" data-ur="آپ کی کلاسیں">Your classes</h1>
+</div>
+<div class="app-content">
+<div class="grade-chip-row">
+<button class="grade-chip active">Grade 5-A</button>
+<button class="grade-chip locked" data-locked=""><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect height="9.5" rx="2.2" width="13" x="5.5" y="10.5"></rect><path d="M8.3 10.5V7.8a3.7 3.7 0 0 1 7.4 0v2.7"></path></svg>Grade 2</button>
+<button class="grade-chip locked" data-locked=""><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect height="9.5" rx="2.2" width="13" x="5.5" y="10.5"></rect><path d="M8.3 10.5V7.8a3.7 3.7 0 0 1 7.4 0v2.7"></path></svg>Grade 7</button>
+<button class="grade-chip locked" data-locked=""><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect height="9.5" rx="2.2" width="13" x="5.5" y="10.5"></rect><path d="M8.3 10.5V7.8a3.7 3.7 0 0 1 7.4 0v2.7"></path></svg>Grade 9</button>
+</div>
+<div id="t-locked-note" style="display:none; margin-top:14px; text-align:center; padding:30px 10px;">
+<div style="width:46px; height:46px; border-radius:14px; background:var(--navy-tint); color:var(--navy); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;"><svg class="icon icon-lg" viewBox="0 0 24 24"><rect height="9.5" rx="2.2" width="13" x="5.5" y="10.5"></rect><path d="M8.3 10.5V7.8a3.7 3.7 0 0 1 7.4 0v2.7"></path></svg></div>
+<div class="list-title" style="margin-bottom:4px;">You're not assigned to this class</div>
+<div class="list-sub">For student privacy, teachers can only view classes assigned to them.</div>
+</div>
+<div id="t-classes-data">
+<button class="btn-primary" data-open-overlay="attendance" style="margin:14px 0 12px;">Mark Today's Attendance</button>
+<h2 class="section-title" style="margin-top:8px;">Students (32)</h2>
+<div class="card">
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-1">AM</div>
+<div class="list-main"><div class="list-title">Ayesha Malik</div><div class="list-sub">Roll No. 01</div></div>
+<span class="badge badge-safe">Present</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-2">BA</div>
+<div class="list-main"><div class="list-title">Bilal Ahmed</div><div class="list-sub">Roll No. 02</div></div>
+<span class="badge badge-safe">Present</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-3">HR</div>
+<div class="list-main"><div class="list-title">Hassan Raza</div><div class="list-sub">Roll No. 03</div></div>
+<span class="badge badge-danger">Absent</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-4">FN</div>
+<div class="list-main"><div class="list-title">Fatima Noor</div><div class="list-sub">Roll No. 04</div></div>
+<span class="badge badge-safe">Present</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-5">OS</div>
+<div class="list-main"><div class="list-title">Omar Sheikh</div><div class="list-sub">Roll No. 05</div></div>
+<span class="badge badge-warning">Late</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-6">ZI</div>
+<div class="list-main"><div class="list-title">Zainab Iqbal</div><div class="list-sub">Roll No. 06</div></div>
+<span class="badge badge-safe">Present</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-1">AH</div>
+<div class="list-main"><div class="list-title">Ali Hamza</div><div class="list-sub">Roll No. 07</div></div>
+<span class="badge badge-info">Leave</span>
+</div>
+<div class="list-row" data-open-overlay="student">
+<div class="avatar-sm av-2">MF</div>
+<div class="list-main"><div class="list-title">Mahnoor Fatima</div><div class="list-sub">Roll No. 08</div></div>
+<span class="badge badge-safe">Present</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ---- Teacher Tests ---- -->
+<section class="screen" id="t-tests">
+<div class="app-header">
+<div class="eyebrow" data-en="Tests" data-ur="ٹیسٹ">Tests</div>
+<h1 class="page-title" data-en="Tests &amp; results" data-ur="ٹیسٹ اور نتائج">Tests &amp; results</h1>
+</div>
+<div class="app-content">
+<div class="segmented" data-seg-group="t-tests-seg">
+<button class="active" data-view="planner">Test Planner</button>
+<button data-view="finalresults">Final Results</button>
+</div>
+<div class="seg-view show" data-seg-group="t-tests-seg" data-view-panel="planner">
+<button class="btn-primary" data-open-overlay="create-test" style="margin-bottom:14px;">+ New Test</button>
+<h2 class="section-title">Upcoming</h2>
+<div class="card">
+<div class="list-row">
+<div class="list-main"><div class="list-title">Mathematics — Ch.4 Fractions</div><div class="list-sub">Sep 3, 2026 · 50 marks</div></div>
+<span class="badge badge-warning">Scheduled</span>
+</div>
+<div class="list-row">
+<div class="list-main"><div class="list-title">Science — Ch.5 Human Body</div><div class="list-sub">Sep 8, 2026 · 50 marks</div></div>
+<span class="badge badge-warning">Scheduled</span>
+</div>
+</div>
+<h2 class="section-title">Completed</h2>
+<div class="card">
+<div class="list-row" data-open-overlay="results-entry">
+<div class="list-main"><div class="list-title">English — Unit 3 Comprehension</div><div class="list-sub">Aug 20, 2026 · 50 marks</div></div>
+<span class="badge badge-safe">Results entered</span>
+</div>
+</div>
+</div>
+<div class="seg-view" data-seg-group="t-tests-seg" data-view-panel="finalresults">
+<div class="card" style="margin-bottom:12px;">
+<div class="list-title" style="margin-bottom:2px;">Term 1 Final Exam</div>
+<div class="list-sub">Grade 5-A · 32 students · Class average 79.8%</div>
+</div>
+<div class="card">
+<div class="list-row" style="align-items:center;">
+<span class="badge badge-neutral" style="width:20px; height:20px; border-radius:50%; padding:0; justify-content:center;">1</span>
+<div class="list-main"><div class="list-title">Bilal Ahmed</div><div class="list-sub">328/350 · 93.7%</div></div>
+<div class="grade-badge grade-a">A</div>
+</div>
+<div class="list-row" style="align-items:center;">
+<span class="badge badge-neutral" style="width:20px; height:20px; border-radius:50%; padding:0; justify-content:center;">2</span>
+<div class="list-main"><div class="list-title">Fatima Noor</div><div class="list-sub">315/350 · 90.0%</div></div>
+<div class="grade-badge grade-a">A</div>
+</div>
+<div class="list-row" data-open-overlay="final-detail" style="align-items:center; cursor:pointer;">
+<span class="badge badge-info" style="width:20px; height:20px; border-radius:50%; padding:0; justify-content:center;">3</span>
+<div class="list-main"><div class="list-title">Ayesha Malik</div><div class="list-sub">306/350 · 87.4%</div></div>
+<div class="grade-badge grade-b">B</div>
+</div>
+<div class="list-row" style="align-items:center;">
+<span class="badge badge-neutral" style="width:20px; height:20px; border-radius:50%; padding:0; justify-content:center;">4</span>
+<div class="list-main"><div class="list-title">Zainab Iqbal</div><div class="list-sub">298/350 · 85.1%</div></div>
+<div class="grade-badge grade-b">B</div>
+</div>
+<div class="list-row" style="align-items:center;">
+<span class="badge badge-neutral" style="width:20px; height:20px; border-radius:50%; padding:0; justify-content:center;">5</span>
+<div class="list-main"><div class="list-title">Mahnoor Fatima</div><div class="list-sub">289/350 · 82.6%</div></div>
+<div class="grade-badge grade-b">B</div>
+</div>
+<div class="list-row" style="align-items:center;">
+<span class="badge badge-danger" style="width:20px; height:20px; border-radius:50%; padding:0; justify-content:center;">30</span>
+<div class="list-main"><div class="list-title">Hassan Raza</div><div class="list-sub">172/350 · 49.1%</div></div>
+<div class="grade-badge grade-f">F</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ---- Teacher Feedback ---- -->
+<section class="screen" id="t-feedback">
+<div class="app-header">
+<div class="eyebrow" data-en="Feedback" data-ur="رائے">Feedback</div>
+<h1 class="page-title" data-en="Weekly feedback" data-ur="ہفتہ وار رائے">Weekly feedback</h1>
+</div>
+<div class="app-content">
+<h2 class="section-title" style="margin-top:2px;">Student</h2>
+<div class="card" style="display:flex; align-items:center; gap:12px;">
+<div class="avatar-sm av-1" style="width:38px;height:38px;font-size:13px;">AM</div>
+<div class="list-main"><div class="list-title">Ayesha Malik</div><div class="list-sub">Roll No. 01 · Week of Aug 24–28</div></div>
+<button class="icon-btn chev"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5"></path></svg></button>
+</div>
+<h2 class="section-title">Academic performance</h2>
+<div class="chip-group">
+<button class="g-chip active">Excellent</button>
+<button class="g-chip">Good</button>
+<button class="g-chip">Needs Improvement</button>
+</div>
+<h2 class="section-title">Homework</h2>
+<div class="chip-group">
+<button class="g-chip active">Completed</button>
+<button class="g-chip">Partial</button>
+<button class="g-chip">Incomplete</button>
+</div>
+<h2 class="section-title">Behaviour</h2>
+<div class="chip-group">
+<button class="g-chip active">Excellent</button>
+<button class="g-chip">Good</button>
+<button class="g-chip">Fair</button>
+</div>
+<h2 class="section-title">Participation</h2>
+<div class="chip-group">
+<button class="g-chip active">Very Active</button>
+<button class="g-chip">Active</button>
+<button class="g-chip">Reserved</button>
+</div>
+<div class="field"><label>Strengths</label><textarea>Strong reading comprehension and creative writing. Engages actively during Science experiments.</textarea></div>
+<div class="field"><label>Areas to improve</label><textarea>Needs more practice with multiplication tables — recommend 10 minutes of daily drills at home.</textarea></div>
+<div class="field"><label>Complaints / concerns (optional)</label><textarea placeholder="None this week"></textarea></div>
+<div class="setting-row" style="border:none; padding-top:4px;">
+<div class="setting-main"><div class="setting-title">Send to parent immediately</div></div>
+<label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+</div>
+<button class="btn-primary" style="margin:8px 0 18px;">Save Feedback</button>
+<h2 class="section-title">Recent entries</h2>
+<div class="card">
+<div class="list-row"><div class="list-main"><div class="list-title">Bilal Ahmed</div><div class="list-sub">Submitted · Aug 28</div></div><span class="badge badge-safe">Sent</span></div>
+<div class="list-row"><div class="list-main"><div class="list-title">Fatima Noor</div><div class="list-sub">Submitted · Aug 28</div></div><span class="badge badge-safe">Sent</span></div>
+<div class="list-row"><div class="list-main"><div class="list-title">Hassan Raza</div><div class="list-sub">Not started</div></div><span class="badge badge-warning">Pending</span></div>
+</div>
+</div>
+</section>
+<!-- ---- Teacher Profile ---- -->
+<section class="screen" id="t-profile">
+<div class="app-header">
+<div class="eyebrow" data-en="Profile" data-ur="پروفائل">Profile</div>
+<h1 class="page-title" data-en="My profile" data-ur="میرا پروفائل">My profile</h1>
+</div>
+<div class="app-content">
+<div class="card" style="display:flex; align-items:center; gap:13px;">
+<div class="avatar-lg" style="background:linear-gradient(135deg,var(--navy),var(--emerald));">ST</div>
+<div>
+<div class="list-title" style="font-size:14.5px;">Ms. Sana Tariq</div>
+<div class="list-sub">Employee ID T-2291 · Science &amp; Mathematics</div>
+</div>
+</div>
+<h2 class="section-title">Assigned class</h2>
+<div class="card list-row" style="border:none;">
+<div class="quick-icon" style="background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-md" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5"></path><circle cx="17" cy="9" r="2.4"></circle><path d="M15.5 14.2c2.4.4 4 2 4.5 4.3"></path></svg></div>
+<div class="list-main"><div class="list-title">Grade 5 — Section A</div><div class="list-sub">32 students · Class Teacher</div></div>
+</div>
+<h2 class="section-title">Manage subjects</h2>
+<div class="card list-row" data-open-overlay="subjects" style="border:none; cursor:pointer;">
+<div class="quick-icon" style="background:var(--blue-soft); color:var(--blue-text);"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div>
+<div class="list-main"><div class="list-title">Grade 5-A subjects</div><div class="list-sub">7 subjects configured</div></div>
+<svg class="icon icon-md chev" viewBox="0 0 24 24"><path d="M9 5.5 15.5 12 9 18.5"></path></svg>
+</div>
+<h2 class="section-title">Notify parents automatically</h2>
+<div class="card">
+<div class="setting-row">
+<div class="setting-icon"><svg class="icon" viewBox="0 0 24 24"><rect height="15" rx="2.5" width="17" x="3.5" y="5"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v4M16 3v4"></path><path d="M8.5 14.5l2 2 4-4.5"></path></svg></div>
+<div class="setting-main"><div class="setting-title">Attendance updates</div><div class="setting-sub">Absences and late arrivals</div></div>
+<label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+</div>
+<div class="setting-row">
+<div class="setting-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div class="setting-main"><div class="setting-title">Test results</div><div class="setting-sub">Whenever marks are entered</div></div>
+<label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+</div>
+<div class="setting-row">
+<div class="setting-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3.5 19 6.5v5c0 5.2-3.6 8.7-7 9.9-3.4-1.2-7-4.7-7-9.9v-5Z"></path><path d="M9 12.2l2 2 4-4.2"></path></svg></div>
+<div class="setting-main"><div class="setting-title">Final exam results</div><div class="setting-sub">Once the term result is published</div></div>
+<label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+</div>
+<div class="setting-row">
+<div class="setting-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div>
+<div class="setting-main"><div class="setting-title">Weekly feedback</div><div class="setting-sub">As soon as you save it</div></div>
+<label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label>
+</div>
+</div>
+<button class="btn-secondary" id="teacher-logout-btn" style="margin-top:16px; background:var(--coral-soft); color:var(--coral-text);">Log out</button>
+</div>
+</section>
+<!-- ---- Teacher Overlays ---- -->
+<div class="overlay" id="teacher-overlay">
+<div class="ov-panel active" data-panel="attendance">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div><div class="ov-title">Mark Attendance</div><div class="ov-sub">Grade 5-A · Monday, 31 Aug</div></div>
+</div>
+<div class="ov-content">
+<div class="card" style="margin-bottom:14px;">
+<div class="status-track"><div class="status-seg present" style="width:85%"></div><div class="status-seg absent" style="width:6%"></div><div class="status-seg late" style="width:6%"></div><div class="status-seg leave" style="width:3%"></div></div>
+<div class="status-legend"><div class="legend-item"><span class="legend-dot" style="background:var(--emerald)"></span>27 Present</div><div class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>2 Absent</div><div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>2 Late</div><div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>1 Leave</div></div>
+</div>
+<div class="card">
+<div class="list-row att-row"><div class="avatar-sm av-1">AM</div><div class="list-main"><div class="list-title">Ayesha Malik</div><div class="list-sub">Roll 01 · 91% this month</div></div><div class="att-btns"><button class="att-btn p active">P</button><button class="att-btn a">A</button><button class="att-btn l">L</button><button class="att-btn le">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-2">BA</div><div class="list-main"><div class="list-title">Bilal Ahmed</div><div class="list-sub">Roll 02 · 96% this month</div></div><div class="att-btns"><button class="att-btn p active">P</button><button class="att-btn a">A</button><button class="att-btn l">L</button><button class="att-btn le">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-3">HR</div><div class="list-main"><div class="list-title">Hassan Raza</div><div class="list-sub">Roll 03 · 74% this month</div></div><div class="att-btns"><button class="att-btn p">P</button><button class="att-btn a active">A</button><button class="att-btn l">L</button><button class="att-btn le">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-4">FN</div><div class="list-main"><div class="list-title">Fatima Noor</div><div class="list-sub">Roll 04 · 98% this month</div></div><div class="att-btns"><button class="att-btn p active">P</button><button class="att-btn a">A</button><button class="att-btn l">L</button><button class="att-btn le">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-5">OS</div><div class="list-main"><div class="list-title">Omar Sheikh</div><div class="list-sub">Roll 05 · 88% this month</div></div><div class="att-btns"><button class="att-btn p">P</button><button class="att-btn a">A</button><button class="att-btn l active">L</button><button class="att-btn le">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-6">ZI</div><div class="list-main"><div class="list-title">Zainab Iqbal</div><div class="list-sub">Roll 06 · 93% this month</div></div><div class="att-btns"><button class="att-btn p active">P</button><button class="att-btn a">A</button><button class="att-btn l">L</button><button class="att-btn le">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-1">AH</div><div class="list-main"><div class="list-title">Ali Hamza</div><div class="list-sub">Roll 07 · 85% this month</div></div><div class="att-btns"><button class="att-btn p">P</button><button class="att-btn a">A</button><button class="att-btn l">L</button><button class="att-btn le active">Le</button></div></div>
+<div class="list-row att-row"><div class="avatar-sm av-2">MF</div><div class="list-main"><div class="list-title">Mahnoor Fatima</div><div class="list-sub">Roll 08 · 90% this month</div></div><div class="att-btns"><button class="att-btn p active">P</button><button class="att-btn a">A</button><button class="att-btn l">L</button><button class="att-btn le">Le</button></div></div>
+</div>
+<div class="setting-row" style="border:none;"><div class="setting-main"><div class="setting-title">Notify parents of absences</div></div><label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+<button class="btn-primary" style="margin-top:6px;">Save Attendance</button>
+</div>
+</div>
+<div class="ov-panel" data-panel="student">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div class="avatar-sm av-1" style="width:36px;height:36px;font-size:12.5px;">AM</div>
+<div><div class="ov-title">Ayesha Malik</div><div class="ov-sub">Roll No. 01 · Grade 5-A</div></div>
+</div>
+<div class="ov-content">
+<div class="stat-row">
+<div class="stat-box"><b>91%</b><span>Attendance</span></div>
+<div class="stat-box"><b>87.4%</b><span>Final avg</span></div>
+<div class="stat-box"><b>#3</b><span>Class rank</span></div>
+</div>
+<h2 class="section-title">Recent test scores</h2>
+<div class="card">
+<div class="list-row"><div class="list-main"><div class="list-title">English — Unit 3</div><div class="list-sub">Aug 20</div></div><div class="grade-badge grade-a">A</div></div>
+<div class="list-row"><div class="list-main"><div class="list-title">Mathematics — Ch.3</div><div class="list-sub">Aug 10</div></div><div class="grade-badge grade-b">B</div></div>
+<div class="list-row"><div class="list-main"><div class="list-title">Science — Ch.4</div><div class="list-sub">Jul 28</div></div><div class="grade-badge grade-b">B</div></div>
+</div>
+<h2 class="section-title">Latest feedback</h2>
+<div class="card"><div class="fb-line" style="margin-top:0;"><strong>Strengths</strong>Strong reading comprehension and creative writing.</div></div>
+<button class="btn-secondary" data-screen-link="feedback" style="margin-top:14px;">Give New Feedback</button>
+</div>
+</div>
+<div class="ov-panel" data-panel="create-test">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div><div class="ov-title">New Test</div><div class="ov-sub">Grade 5-A</div></div>
+</div>
+<div class="ov-content">
+<div class="field"><label>Subject</label>
+<div class="chip-select">
+<button class="chip" data-en="Islamiat" data-ur="اسلامیات">Islamiat</button>
+<button class="chip active" data-en="Social Studies" data-ur="معاشرتی علوم">Social Studies</button>
+<button class="chip" data-en="English" data-ur="انگریزی">English</button>
+<button class="chip" data-en="Mathematics" data-ur="ریاضی">Mathematics</button>
+<button class="chip" data-en="Science" data-ur="سائنس">Science</button>
+<button class="chip" data-en="Urdu" data-ur="اردو">Urdu</button>
+<button class="chip" data-en="Computer" data-ur="کمپیوٹر">Computer</button>
+</div>
+</div>
+<div class="field"><label>Test date</label><input type="text" value="10 Sep 2026"/></div>
+<div class="field"><label>Total marks</label><input type="text" value="50"/></div>
+<div class="field"><label>Syllabus / topics</label><textarea>Chapter 2: Our Community — types of communities, community helpers, and basic map reading.</textarea></div>
+<div class="field"><label>Class &amp; section</label>
+<div class="chip-select">
+<button class="chip active">Grade 5</button>
+<button class="chip">Section A</button>
+<button class="chip">Section B</button>
+</div>
+</div>
+<button class="btn-primary">Create Test</button>
+</div>
+</div>
+<div class="ov-panel" data-panel="results-entry">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div><div class="ov-title" data-en="English — Unit 3" data-ur="انگریزی — یونٹ 3">English — Unit 3</div><div class="ov-sub">Aug 20, 2026 · Total 50 marks</div></div>
+</div>
+<div class="ov-content">
+<div class="card">
+<div class="list-row"><div class="avatar-sm av-1">AM</div><div class="list-main"><div class="list-title">Ayesha Malik</div><div class="list-sub">45 / 50 · 90% · Excellent</div></div><div class="grade-badge grade-a">A</div></div>
+<div class="list-row"><div class="avatar-sm av-2">BA</div><div class="list-main"><div class="list-title">Bilal Ahmed</div><div class="list-sub">38 / 50 · 76% · Good effort</div></div><div class="grade-badge grade-b">B</div></div>
+<div class="list-row"><div class="avatar-sm av-3">HR</div><div class="list-main"><div class="list-title">Hassan Raza</div><div class="list-sub">29 / 50 · 58% · Needs improvement</div></div><div class="grade-badge grade-d">D</div></div>
+<div class="list-row"><div class="avatar-sm av-4">FN</div><div class="list-main"><div class="list-title">Fatima Noor</div><div class="list-sub">41 / 50 · 82% · Well done</div></div><div class="grade-badge grade-b">B</div></div>
+<div class="list-row"><div class="avatar-sm av-5">OS</div><div class="list-main"><div class="list-title">Omar Sheikh</div><div class="list-sub">33 / 50 · 66% · Satisfactory</div></div><div class="grade-badge grade-c">C</div></div>
+</div>
+<div class="setting-row" style="border:none;"><div class="setting-main"><div class="setting-title">Notify parents when saved</div></div><label class="toggle"><input checked="" type="checkbox"/><span class="toggle-track"></span><span class="toggle-thumb"></span></label></div>
+<button class="btn-primary">Save Results</button>
+</div>
+</div>
+<div class="ov-panel" data-panel="final-detail">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div class="avatar-sm av-1" style="width:36px;height:36px;font-size:12.5px;">AM</div>
+<div><div class="ov-title">Ayesha Malik — Final Result</div><div class="ov-sub">Term 1 · Grade 5-A</div></div>
+</div>
+<div class="ov-content">
+<div class="stat-row">
+<div class="stat-box"><b>306/350</b><span>Total marks</span></div>
+<div class="stat-box"><b>87.4%</b><span>Percentage</span></div>
+<div class="stat-box"><b>#3</b><span>Class position</span></div>
+</div>
+<div style="display:flex; gap:9px; margin-top:11px;">
+<span class="badge badge-info" style="flex:1; justify-content:center; padding:8px;">Overall Grade: B</span>
+<span class="badge badge-safe" style="flex:1; justify-content:center; padding:8px;">Pass</span>
+</div>
+<h2 class="section-title">Subject-wise marks</h2>
+<table class="mini-table">
+<tr><th data-en="Subject" data-ur="مضمون">Subject</th><th>Marks</th><th>Grade</th></tr>
+<tr><td data-en="Islamiat" data-ur="اسلامیات">Islamiat</td><td class="num">47/50</td><td><span class="grade-badge grade-a" style="width:24px;height:24px;font-size:10.5px;">A</span></td></tr>
+<tr><td data-en="Social Studies" data-ur="معاشرتی علوم">Social Studies</td><td class="num">42/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="English" data-ur="انگریزی">English</td><td class="num">45/50</td><td><span class="grade-badge grade-a" style="width:24px;height:24px;font-size:10.5px;">A</span></td></tr>
+<tr><td data-en="Mathematics" data-ur="ریاضی">Mathematics</td><td class="num">39/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="Science" data-ur="سائنس">Science</td><td class="num">41/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="Urdu" data-ur="اردو">Urdu</td><td class="num">44/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="Computer" data-ur="کمپیوٹر">Computer</td><td class="num">48/50</td><td><span class="grade-badge grade-a" style="width:24px;height:24px;font-size:10.5px;">A</span></td></tr>
+</table>
+<h2 class="section-title">Teacher remarks</h2>
+<div class="field"><textarea>Ayesha is a diligent and curious student who consistently participates in class discussions. Encourage more practice with Mathematics word problems to build confidence.</textarea></div>
+<button class="btn-primary">Publish Final Result</button>
+</div>
+</div>
+<div class="ov-panel" data-panel="subjects">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div><div class="ov-title">Manage Subjects</div><div class="ov-sub">Grade 5-A</div></div>
+</div>
+<div class="ov-content">
+<div class="card">
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="Islamiat" data-ur="اسلامیات">Islamiat</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="Social Studies" data-ur="معاشرتی علوم">Social Studies</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="English" data-ur="انگریزی">English</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="Mathematics" data-ur="ریاضی">Mathematics</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="Science" data-ur="سائنس">Science</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="Urdu" data-ur="اردو">Urdu</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px; background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5c2.5-1.3 5.5-1.3 8 0v13c-2.5-1.3-5.5-1.3-8 0z"></path><path d="M20 5.5c-2.5-1.3-5.5-1.3-8 0v13c2.5-1.3 5.5-1.3 8 0z"></path></svg></div><div class="list-main"><div class="list-title" data-en="Computer" data-ur="کمپیوٹر">Computer</div></div><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4.5 19.5l.9-3.6L15.8 5.5l2.7 2.7L8.1 18.6l-3.6.9Z"></path></svg></button><button class="icon-btn"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 7h14"></path><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path><path d="M7 7l1 13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1l1-13"></path></svg></button></div>
+</div>
+<div class="field" style="margin-top:14px;"><label>Add a subject</label><input placeholder="e.g. Art &amp; Craft" type="text"/></div>
+<button class="btn-primary"><svg class="icon icon-sm" style="margin-right:6px; vertical-align:-2px;" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Add Subject</button>
+</div>
+</div>
+<div class="ov-panel" data-panel="notifications">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div><div class="ov-title">Reminders</div><div class="ov-sub">Things that need your attention</div></div>
+</div>
+<div class="ov-content">
+<div class="card">
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px;background:var(--blue-soft); color:var(--blue-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div><div class="list-main"><div class="list-title">Science test results pending entry</div><div class="list-sub">Due for grading</div></div></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px;background:var(--yellow-soft); color:var(--yellow-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div><div class="list-main"><div class="list-title">6 students need weekly feedback</div><div class="list-sub">Due by Friday</div></div></div>
+<div class="list-row"><div class="quick-icon" style="width:32px;height:32px;background:var(--emerald-soft); color:var(--emerald-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect height="15" rx="2.5" width="17" x="3.5" y="5"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v4M16 3v4"></path><path d="M12 13v5M9.5 15.5h5"></path></svg></div><div class="list-main"><div class="list-title">Meeting requested — Ayesha Malik's parent</div><div class="list-sub">Wants to discuss Math progress</div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="bottom-nav">
+<button class="nav-btn active" data-screen="dashboard"><svg class="icon" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9.5v-6h5v6H17.5a1 1 0 0 0 1-1V10"></path></svg><span data-en="Dashboard" data-ur="ڈیش بورڈ">Dashboard</span></button>
+<button class="nav-btn" data-screen="classes"><svg class="icon" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"></circle><path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5"></path><circle cx="17" cy="9" r="2.4"></circle><path d="M15.5 14.2c2.4.4 4 2 4.5 4.3"></path></svg><span data-en="Classes" data-ur="کلاسیں">Classes</span></button>
+<button class="nav-btn" data-screen="tests"><svg class="icon" viewBox="0 0 24 24"><rect height="16" rx="2.3" width="14" x="5" y="4.5"></rect><path d="M9 4.5V3.3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V4.5"></path><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4.5"></path></svg><span data-en="Tests" data-ur="ٹیسٹ">Tests</span></button>
+<button class="nav-btn" data-screen="feedback"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg><span data-en="Feedback" data-ur="رائے">Feedback</span></button>
+<button class="nav-btn" data-screen="profile"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"></circle><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"></path></svg><span data-en="Profile" data-ur="پروفائل">Profile</span></button>
+</nav>
+</div>
+
+  <!-- ================= PARENT APP ================= -->
+<div class="phone-screen" data-prefix="p" id="parent-shell">
+
+<div class="app-body">
+<!-- ---- Parent Login ---- -->
+<section class="screen active" id="p-login">
+<div class="login-wrap">
+<div class="login-logo"><svg viewBox="0 0 24 24"><path d="M4.5 20c.8-4 4-6 7.5-6s6.7 2 7.5 6"></path><circle cx="12" cy="8" r="3.6"></circle></svg></div>
+<div class="login-title">Parent Login</div>
+<div class="login-sub">View your child's academic &amp; attendance reports</div>
+<div class="login-field">
+<svg class="icon icon-md" viewBox="0 0 24 24"><path d="M6.5 3.5h4l1.5 4-2.2 1.6a12 12 0 0 0 5.6 5.6l1.6-2.2 4 1.5v4c0 1-1 1.6-2 1.5-8-1-13.5-6.5-14.5-14.5-.1-1 .5-2 1.5-2Z"></path></svg>
+<input readonly="" type="text" value="+92 300 1234567"/>
+</div>
+<div class="login-field">
+<svg class="icon icon-md" viewBox="0 0 24 24"><rect height="9.5" rx="2.2" width="13" x="5.5" y="10.5"></rect><path d="M8.3 10.5V7.8a3.7 3.7 0 0 1 7.4 0v2.7"></path></svg>
+<input readonly="" type="password" value="••••••••"/>
+</div>
+<button class="btn-primary" id="parent-login-btn" style="margin-top:8px;">Log In</button>
+<div class="login-foot">Access code was shared by Greenwood Public School at admission.</div>
+</div>
+</section>
+<!-- ---- Parent Dashboard ---- -->
+<section class="screen" id="p-dashboard">
+<div class="app-header">
+<div class="eyebrow">Monday, 31 August</div>
+<h1 class="page-title" data-en="Ayesha's overview" data-ur="عائشہ کا جائزہ">Ayesha's overview</h1>
+</div>
+<div class="app-content">
+<div class="card" style="display:flex; align-items:center; gap:13px;">
+<div class="avatar-lg" style="background:linear-gradient(135deg,var(--emerald),var(--navy));">AM</div>
+<div style="flex:1;">
+<div class="list-title" style="font-size:14.5px;">Ayesha Malik</div>
+<div class="list-sub">Grade 5 · Section A · Roll No. 01</div>
+<div class="list-sub">Greenwood Public School</div>
+</div>
+<button class="icon-btn" data-open-overlay="alerts" style="background:#fff; box-shadow:var(--shadow-sm);"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M6.5 8.5a5.5 5.5 0 0 1 11 0c0 6.5 2.5 7.5 2.5 7.5h-16s2.5-1 2.5-7.5Z"></path><path d="M10 19a2 2 0 0 0 4 0"></path></svg></button>
+</div>
+<div class="stat-row" style="margin-top:12px;">
+<div class="stat-box"><b>90%</b><span>Attendance</span></div>
+<div class="stat-box"><b>90%</b><span>Last test</span></div>
+<div class="stat-box"><b>#3</b><span>Class rank</span></div>
+</div>
+<h2 class="section-title">Class teacher</h2>
+<div class="card" style="display:flex; align-items:center; gap:12px;">
+<div class="avatar-sm" style="background:linear-gradient(135deg,var(--navy),var(--emerald)); width:38px;height:38px;font-size:13px;">ST</div>
+<div class="list-main"><div class="list-title">Ms. Sana Tariq</div><div class="list-sub">Science &amp; Mathematics</div></div>
+<button class="icon-btn chev" data-screen-link="messages"><svg class="icon icon-md" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></button>
+</div>
+<h2 class="section-title">Recent updates</h2>
+<div class="card">
+<div class="list-row">
+<div class="quick-icon" style="width:32px;height:32px;background:var(--emerald-soft); color:var(--emerald-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div class="list-main"><div class="list-title">New result: Science — 41/50</div><div class="list-sub">2 days ago</div></div>
+</div>
+<div class="list-row">
+<div class="quick-icon" style="width:32px;height:32px;background:var(--navy-tint); color:var(--navy);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div class="list-main"><div class="list-title">Upcoming: Mathematics test</div><div class="list-sub">Sep 3, 2026</div></div>
+</div>
+<div class="list-row">
+<div class="quick-icon" style="width:32px;height:32px;background:var(--blue-soft); color:var(--blue-text);"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div>
+<div class="list-main"><div class="list-title">New weekly feedback available</div><div class="list-sub">Today</div></div>
+</div>
+</div>
+<button class="btn-secondary" data-open-overlay="alerts" style="margin-top:11px;">View all alerts</button>
+</div>
+</section>
+<!-- ---- Parent Attendance ---- -->
+<section class="screen" id="p-attendance">
+<div class="app-header">
+<div class="eyebrow" data-en="Attendance" data-ur="حاضری">Attendance</div>
+<h1 class="page-title" data-en="Ayesha's attendance" data-ur="عائشہ کی حاضری">Ayesha's attendance</h1>
+</div>
+<div class="app-content">
+<div class="card" style="display:flex; align-items:center; gap:16px;">
+<div class="ring-wrap">
+<svg viewBox="0 0 100 100"><circle class="ring-track" cx="50" cy="50" r="40"></circle><circle class="ring-progress" cx="50" cy="50" r="40" stroke-dasharray="251.3" stroke-dashoffset="25.1"></circle></svg>
+<div class="ring-center"><b>90%</b><span>August</span></div>
+</div>
+<div style="flex:1; display:flex; flex-direction:column; gap:7px;">
+<div class="legend-item"><span class="legend-dot" style="background:var(--emerald)"></span>18 Present</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>1 Absent</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>1 Late</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span>0 Leave</div>
+</div>
+</div>
+<h2 class="section-title">August 2026</h2>
+<div class="card">
+<div class="cal-dow"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
+<div class="cal-grid">
+<div class="cal-cell cal-blank">·</div><div class="cal-cell cal-blank">·</div><div class="cal-cell cal-blank">·</div><div class="cal-cell cal-blank">·</div><div class="cal-cell cal-blank">·</div><div class="cal-cell cal-blank">·</div>
+<div class="cal-cell cal-weekend">1</div>
+<div class="cal-cell cal-weekend">2</div><div class="cal-cell cal-present">3</div><div class="cal-cell cal-present">4</div><div class="cal-cell cal-late">5</div><div class="cal-cell cal-present">6</div><div class="cal-cell cal-present">7</div><div class="cal-cell cal-weekend">8</div>
+<div class="cal-cell cal-weekend">9</div><div class="cal-cell cal-present">10</div><div class="cal-cell cal-present">11</div><div class="cal-cell cal-absent">12</div><div class="cal-cell cal-present">13</div><div class="cal-cell cal-holiday">14</div><div class="cal-cell cal-weekend">15</div>
+<div class="cal-cell cal-weekend">16</div><div class="cal-cell cal-present">17</div><div class="cal-cell cal-present">18</div><div class="cal-cell cal-present">19</div><div class="cal-cell cal-present">20</div><div class="cal-cell cal-present">21</div><div class="cal-cell cal-weekend">22</div>
+<div class="cal-cell cal-weekend">23</div><div class="cal-cell cal-present">24</div><div class="cal-cell cal-present">25</div><div class="cal-cell cal-present">26</div><div class="cal-cell cal-present">27</div><div class="cal-cell cal-present">28</div><div class="cal-cell cal-weekend">29</div>
+<div class="cal-cell cal-weekend">30</div><div class="cal-cell cal-present">31</div>
+</div>
+<div class="status-legend" style="margin-top:12px;">
+<div class="legend-item"><span class="legend-dot" style="background:var(--emerald)"></span>Present</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--coral)"></span>Absent</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--yellow)"></span>Late</div>
+<div class="legend-item"><span class="legend-dot" style="background:var(--navy)"></span>Holiday</div>
+</div>
+</div>
+<h2 class="section-title">Last 3 months</h2>
+<div class="card">
+<svg viewBox="0 0 300 90">
+<line stroke="var(--ink-faint)" stroke-dasharray="4 3" stroke-width="1.2" x1="14" x2="286" y1="26.4" y2="26.4"></line>
+<rect fill="#1E9E6B" height="50.8" rx="6" width="45.3" x="36.7" y="25.2"></rect>
+<rect fill="#D9A21B" height="48.4" rx="6" width="45.3" x="127.3" y="27.6"></rect>
+<rect fill="#1E9E6B" height="55.8" rx="6" width="45.3" x="218.0" y="20.2"></rect>
+</svg>
+<div class="day-label-row" style="display:flex; margin-top:2px;"><span style="flex:1;text-align:center;font-size:10.5px;color:var(--ink-faint);">Jun</span><span style="flex:1;text-align:center;font-size:10.5px;color:var(--ink-faint);">Jul</span><span style="flex:1;text-align:center;font-size:10.5px;color:var(--ink-faint);">Aug</span></div>
+<div class="section-sub" style="margin-top:10px; margin-bottom:0;">Attendance improved 12 points since July.</div>
+</div>
+</div>
+</section>
+<!-- ---- Parent Results ---- -->
+<section class="screen" id="p-results">
+<div class="app-header">
+<div class="eyebrow" data-en="Results" data-ur="نتائج">Results</div>
+<h1 class="page-title" data-en="Academic results" data-ur="تعلیمی نتائج">Academic results</h1>
+</div>
+<div class="app-content">
+<div class="segmented" data-seg-group="p-results-seg">
+<button class="active" data-view="scores">Test Scores</button>
+<button data-view="finalresult">Final Result</button>
+</div>
+<div class="seg-view show" data-seg-group="p-results-seg" data-view-panel="scores">
+<div class="card">
+<div class="chart-title-row" style="display:flex; justify-content:space-between; margin-bottom:6px;"><span class="list-title">Score trend</span><span class="badge badge-safe">Improving</span></div>
+<svg viewBox="0 0 300 90">
+<path d="M10,24 L103.3,52 L196.7,66 L290,45" fill="none" stroke="#1E9E6B" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<circle cx="10" cy="24" fill="#1E9E6B" r="3"></circle><circle cx="103.3" cy="52" fill="#1E9E6B" r="3"></circle><circle cx="196.7" cy="66" fill="#1E9E6B" r="3"></circle><circle cx="290" cy="45" fill="#1E9E6B" r="3"></circle>
+</svg>
+<div class="chart-axis-row" style="display:flex; justify-content:space-between; margin-top:4px;"><span style="font-size:10px;color:var(--ink-faint);">Jul 15</span><span style="font-size:10px;color:var(--ink-faint);">Aug 20</span></div>
+</div>
+<h2 class="section-title">Recent tests</h2>
+<div class="card">
+<div class="list-row"><div class="list-main"><div class="list-title" data-en="English — Unit 3" data-ur="انگریزی — یونٹ 3">English — Unit 3</div><div class="list-sub">Aug 20 · 45/50</div></div><div class="grade-badge grade-a">A</div></div>
+<div class="list-row"><div class="list-main"><div class="list-title" data-en="Mathematics — Ch.3" data-ur="ریاضی — باب 3">Mathematics — Ch.3</div><div class="list-sub">Aug 10 · 42/50</div></div><div class="grade-badge grade-b">B</div></div>
+<div class="list-row"><div class="list-main"><div class="list-title" data-en="Science — Ch.4" data-ur="سائنس — باب 4">Science — Ch.4</div><div class="list-sub">Jul 28 · 44/50</div></div><div class="grade-badge grade-b">B</div></div>
+<div class="list-row"><div class="list-main"><div class="list-title" data-en="Islamiat — Ch.2" data-ur="اسلامیات — باب 2">Islamiat — Ch.2</div><div class="list-sub">Jul 15 · 48/50</div></div><div class="grade-badge grade-a">A</div></div>
+</div>
+<h2 class="section-title">Upcoming tests</h2>
+<div class="card">
+<div class="list-row"><div class="list-main"><div class="list-title" data-en="Mathematics — Ch.4 Fractions" data-ur="ریاضی — باب 4">Mathematics — Ch.4 Fractions</div><div class="list-sub">Sep 3, 2026</div></div><span class="badge badge-warning">Upcoming</span></div>
+<div class="list-row"><div class="list-main"><div class="list-title" data-en="Science — Ch.5 Human Body" data-ur="سائنس — باب 5">Science — Ch.5 Human Body</div><div class="list-sub">Sep 8, 2026</div></div><span class="badge badge-warning">Upcoming</span></div>
+</div>
+</div>
+<div class="seg-view" data-seg-group="p-results-seg" data-view-panel="finalresult">
+<div class="stat-row">
+<div class="stat-box"><b>306/350</b><span>Total</span></div>
+<div class="stat-box"><b>87.4%</b><span>Percentage</span></div>
+<div class="stat-box"><b>#3 of 32</b><span>Position</span></div>
+</div>
+<div style="display:flex; gap:9px; margin-top:11px;">
+<span class="badge badge-info" style="flex:1; justify-content:center; padding:8px;">Grade B</span>
+<span class="badge badge-safe" style="flex:1; justify-content:center; padding:8px;">Pass</span>
+</div>
+<h2 class="section-title">Subject-wise performance</h2>
+<div class="card">
+<svg viewBox="0 0 320 140">
+<line stroke="var(--ink-faint)" stroke-dasharray="4 3" stroke-width="1.2" x1="20" x2="300" y1="80" y2="80"></line>
+<rect fill="#1E9E6B" height="94" rx="4" width="22" x="29" y="26"></rect>
+<rect fill="#3B6EA8" height="84" rx="4" width="22" x="69" y="36"></rect>
+<rect fill="#1E9E6B" height="90" rx="4" width="22" x="109" y="30"></rect>
+<rect fill="#3B6EA8" height="78" rx="4" width="22" x="149" y="42"></rect>
+<rect fill="#3B6EA8" height="82" rx="4" width="22" x="189" y="38"></rect>
+<rect fill="#3B6EA8" height="88" rx="4" width="22" x="229" y="32"></rect>
+<rect fill="#1E9E6B" height="96" rx="4" width="22" x="269" y="24"></rect>
+</svg>
+<div class="day-label-row" style="display:flex; margin-top:4px;">
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">Isl.</span>
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">S.St.</span>
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">Eng.</span>
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">Math</span>
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">Sci.</span>
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">Urdu</span>
+<span style="flex:1;text-align:center;font-size:9px;color:var(--ink-faint);">Comp.</span>
+</div>
+</div>
+<table class="mini-table" style="margin-top:6px;">
+<tr><th data-en="Subject" data-ur="مضمون">Subject</th><th>Marks</th><th>Grade</th></tr>
+<tr><td data-en="Islamiat" data-ur="اسلامیات">Islamiat</td><td class="num">47/50</td><td><span class="grade-badge grade-a" style="width:24px;height:24px;font-size:10.5px;">A</span></td></tr>
+<tr><td data-en="Social Studies" data-ur="معاشرتی علوم">Social Studies</td><td class="num">42/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="English" data-ur="انگریزی">English</td><td class="num">45/50</td><td><span class="grade-badge grade-a" style="width:24px;height:24px;font-size:10.5px;">A</span></td></tr>
+<tr><td data-en="Mathematics" data-ur="ریاضی">Mathematics</td><td class="num">39/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="Science" data-ur="سائنس">Science</td><td class="num">41/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="Urdu" data-ur="اردو">Urdu</td><td class="num">44/50</td><td><span class="grade-badge grade-b" style="width:24px;height:24px;font-size:10.5px;">B</span></td></tr>
+<tr><td data-en="Computer" data-ur="کمپیوٹر">Computer</td><td class="num">48/50</td><td><span class="grade-badge grade-a" style="width:24px;height:24px;font-size:10.5px;">A</span></td></tr>
+</table>
+<h2 class="section-title">Teacher remarks</h2>
+<div class="remark-quote">
+<p>"Ayesha is a diligent and curious student who consistently participates in class discussions. Encourage more practice with Mathematics word problems to build confidence."</p>
+<div class="quote-by">— Ms. Sana Tariq, Class Teacher</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ---- Parent Feedback ---- -->
+<section class="screen" id="p-feedback">
+<div class="app-header">
+<div class="eyebrow" data-en="Feedback" data-ur="رائے">Feedback</div>
+<h1 class="page-title" data-en="Teacher feedback" data-ur="استاد کی رائے">Teacher feedback</h1>
+</div>
+<div class="app-content">
+<div class="card fb-card">
+<div class="fb-week">Week of Aug 24 – 28</div>
+<div class="fb-cat-row">
+<div class="fb-cat">Academic: <b>Excellent</b></div>
+<div class="fb-cat">Homework: <b>Completed</b></div>
+<div class="fb-cat">Behaviour: <b>Excellent</b></div>
+<div class="fb-cat">Participation: <b>Very Active</b></div>
+</div>
+<div class="fb-line"><strong>Strengths</strong>Strong reading comprehension and creative writing. Engages actively during Science experiments.</div>
+<div class="fb-line"><strong>Areas to improve</strong>Needs more practice with multiplication tables — 10 minutes of daily drills at home would help.</div>
+</div>
+<div class="card fb-card">
+<div class="fb-week">Week of Aug 17 – 21</div>
+<div class="fb-cat-row">
+<div class="fb-cat">Academic: <b>Good</b></div>
+<div class="fb-cat">Homework: <b>Completed</b></div>
+<div class="fb-cat">Behaviour: <b>Good</b></div>
+<div class="fb-cat">Participation: <b>Active</b></div>
+</div>
+<div class="fb-line"><strong>Strengths</strong>Good teamwork during the group Science project.</div>
+<div class="fb-line"><strong>Areas to improve</strong>Should double-check work before submitting to reduce careless errors — one late Math worksheet this week.</div>
+</div>
+<div class="card fb-card">
+<div class="fb-week">Week of Aug 10 – 14</div>
+<div class="fb-cat-row">
+<div class="fb-cat">Academic: <b>Good</b></div>
+<div class="fb-cat">Homework: <b>Completed</b></div>
+<div class="fb-cat">Behaviour: <b>Fair</b></div>
+<div class="fb-cat">Participation: <b>Active</b></div>
+</div>
+<div class="fb-line"><strong>Strengths</strong>Helped a classmate understand a tricky Science topic.</div>
+<div class="fb-line"><strong>Areas to improve</strong>Stay focused during independent work time.</div>
+<div class="fb-line concern"><strong>Complaint / concern</strong>Talked during class on two occasions this week — a gentle reminder at home about listening during lessons would help.</div>
+</div>
+</div>
+</section>
+<!-- ---- Parent Messages ---- -->
+<section class="screen" id="p-messages">
+<div class="app-header">
+<div class="eyebrow" data-en="Messages" data-ur="پیغامات">Messages</div>
+<h1 class="page-title" data-en="Ms. Sana Tariq" data-ur="مس ثناء طارق">Ms. Sana Tariq</h1>
+</div>
+<div class="app-content">
+<div class="msg-row in">
+<div><div class="bubble">Hi Mr. Malik, just wanted to let you know Ayesha did really well in this week's Science activity — she asked great questions.</div><div class="msg-time">Ms. Tariq · Mon 9:12 AM</div></div>
+</div>
+<div class="msg-row out">
+<div><div class="bubble">That's wonderful to hear, thank you! We've been practicing multiplication tables at home too.</div><div class="msg-time" style="text-align:right;">You · Mon 9:20 AM</div></div>
+</div>
+<div class="msg-row in">
+<div><div class="bubble">That's great — it's really helping. She's getting more confident with word problems.</div><div class="msg-time">Ms. Tariq · Mon 9:24 AM</div></div>
+</div>
+<div class="msg-row out">
+<div><div class="bubble">Glad to hear it. Would it be possible to meet briefly next week to discuss her Math progress?</div><div class="msg-time" style="text-align:right;">You · Mon 9:26 AM</div></div>
+</div>
+<div class="msg-row in">
+<div><div class="bubble">Of course! I have availability Tuesday afternoon or Thursday morning — let me know what works.</div><div class="msg-time">Ms. Tariq · Mon 9:31 AM</div></div>
+</div>
+<button class="btn-secondary" id="request-meeting-btn"><svg class="icon icon-sm" style="margin-right:6px; vertical-align:-2px;" viewBox="0 0 24 24"><rect height="15" rx="2.5" width="17" x="3.5" y="5"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v4M16 3v4"></path><path d="M12 13v5M9.5 15.5h5"></path></svg>Request Meeting</button>
+<div class="meeting-confirm" id="meeting-confirm"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7.5"></path></svg>Meeting request sent for Tuesday, Sep 2 — Ms. Tariq will confirm shortly.</div>
+<div class="msg-input-bar">
+<span>Type a message...</span>
+<div class="msg-send"><svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" viewBox="0 0 24 24"><path d="M4 11l16-7-6 16-3-6-7-3Z"></path></svg></div>
+</div>
+</div>
+</section>
+<!-- ---- Parent Overlays ---- -->
+<div class="overlay" id="parent-overlay">
+<div class="ov-panel active" data-panel="alerts">
+<div class="ov-header">
+<button class="ov-back"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5.5 8.5 12l6.5 6.5"></path></svg></button>
+<div><div class="ov-title">Alerts</div><div class="ov-sub">Everything about Ayesha, in one place</div></div>
+</div>
+<div class="ov-content">
+<div class="alert-group-label" style="font-size:11px;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.04em;margin:2px 0 8px;">This week</div>
+<div class="card" style="margin-bottom:11px; display:flex; gap:12px; align-items:flex-start;">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--blue-soft); color:var(--blue-text); flex-shrink:0;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div>
+<div><div class="list-title">New feedback from Ms. Tariq</div><div class="list-sub">Today · Great week overall, one small note on tables practice</div></div>
+</div>
+<div class="card" style="margin-bottom:11px; display:flex; gap:12px; align-items:flex-start;">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--emerald-soft); color:var(--emerald-text); flex-shrink:0;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div><div class="list-title">New test result: Science — 41/50 (B)</div><div class="list-sub">2 days ago</div></div>
+</div>
+<div class="card" style="margin-bottom:11px; display:flex; gap:12px; align-items:flex-start;">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--navy-tint); color:var(--navy); flex-shrink:0;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M5 20V10M11 20V4M17 20v-8"></path></svg></div>
+<div><div class="list-title">Reminder: Mathematics test on Sep 3</div><div class="list-sub">3 days ago</div></div>
+</div>
+<div class="card" style="margin-bottom:11px; display:flex; gap:12px; align-items:flex-start;">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--coral-soft); color:var(--coral-text); flex-shrink:0;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 21s7-7.2 7-12.2A7 7 0 0 0 5 8.8C5 13.8 12 21 12 21Z"></path><circle cx="12" cy="9" r="2.4"></circle></svg></div>
+<div><div class="list-title">Ayesha was marked absent</div><div class="list-sub">Aug 12, 2026</div></div>
+</div>
+<div class="alert-group-label" style="font-size:11px;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.04em;margin:16px 0 8px;">Earlier</div>
+<div class="card" style="margin-bottom:11px; display:flex; gap:12px; align-items:flex-start; opacity:0.7;">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--yellow-soft); color:var(--yellow-text); flex-shrink:0;"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg></div>
+<div><div class="list-title">Feedback included a small classroom note</div><div class="list-sub">Aug 14 · Talking during class — resolved</div></div>
+</div>
+<div class="card" style="display:flex; gap:12px; align-items:flex-start; opacity:0.7;">
+<div class="quick-icon" style="width:34px;height:34px;background:var(--yellow-soft); color:var(--yellow-text); flex-shrink:0;"><svg class="icon icon-sm" viewBox="0 0 24 24"><rect height="15" rx="2.5" width="17" x="3.5" y="5"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v4M16 3v4"></path><path d="M8.5 14.5l2 2 4-4.5"></path></svg></div>
+<div><div class="list-title">Low attendance in July (78%)</div><div class="list-sub">Improved to 90% in August</div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<nav class="bottom-nav">
+<button class="nav-btn active" data-screen="dashboard"><svg class="icon" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"></path><path d="M5.5 10v9.5a1 1 0 0 0 1 1H9.5v-6h5v6H17.5a1 1 0 0 0 1-1V10"></path></svg><span data-en="Dashboard" data-ur="ڈیش بورڈ">Dashboard</span></button>
+<button class="nav-btn" data-screen="attendance"><svg class="icon" viewBox="0 0 24 24"><rect height="15" rx="2.5" width="17" x="3.5" y="5"></rect><path d="M3.5 9.5h17"></path><path d="M8 3v4M16 3v4"></path><path d="M8.5 14.5l2 2 4-4.5"></path></svg><span data-en="Attendance" data-ur="حاضری">Attendance</span></button>
+<button class="nav-btn" data-screen="results"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3.5 19 6.5v5c0 5.2-3.6 8.7-7 9.9-3.4-1.2-7-4.7-7-9.9v-5Z"></path><path d="M9 12.2l2 2 4-4.2"></path></svg><span data-en="Results" data-ur="نتائج">Results</span></button>
+<button class="nav-btn" data-screen="feedback"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5.5h16v10.5H9.5L5 19.5V16H4Z"></path></svg><span data-en="Feedback" data-ur="رائے">Feedback</span></button>
+<button class="nav-btn" data-screen="messages"><svg class="icon" viewBox="0 0 24 24"><path d="M6.5 3.5h4l1.5 4-2.2 1.6a12 12 0 0 0 5.6 5.6l1.6-2.2 4 1.5v4c0 1-1 1.6-2 1.5-8-1-13.5-6.5-14.5-14.5-.1-1 .5-2 1.5-2Z"></path></svg><span data-en="Messages" data-ur="پیغامات">Messages</span></button>
+</nav>
+</div>
+
+<script>
+
+(function(){
+  // ---- Role select ----
+  function showRole(prefix){
+    document.getElementById('role-select').style.display = 'none';
+    document.getElementById(prefix === 't' ? 'teacher-shell' : 'parent-shell').classList.add('active-shell');
+  }
+  function backToRoleSelect(shell, prefix){
+    shell.classList.remove('active-shell');
+    shell.classList.remove('logged-in');
+    showScreenEarly(shell, prefix, 'login');
+    document.getElementById('role-select').style.display = 'flex';
+  }
+  // showScreen is defined below; this thin wrapper lets us call it before its declaration is hoisted
+  function showScreenEarly(shell, prefix, name){
+    shell.querySelectorAll('.screen').forEach(function(s){ s.classList.toggle('active', s.id === prefix + '-' + name); });
+    shell.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.screen === name); });
+    var ov = shell.querySelector('.overlay');
+    if(ov) ov.classList.remove('open');
+  }
+  document.getElementById('go-teacher').addEventListener('click', function(){ showRole('t'); });
+  document.getElementById('go-parent').addEventListener('click', function(){ showRole('p'); });
+
+  // Parent app has no Profile tab, so give it a small switch-role control next to the bell icon
+  var parentBell = document.querySelector('#parent-shell #p-dashboard .icon-btn[data-open-overlay="alerts"]');
+  if(parentBell){
+    var switchBtn = document.createElement('button');
+    switchBtn.className = 'switch-role-btn';
+    switchBtn.title = 'Switch role';
+    switchBtn.innerHTML = '<svg class="icon icon-md" viewBox="0 0 24 24"><path d="M4 7h13l-3-3M20 17H7l3 3"/></svg>';
+    switchBtn.addEventListener('click', function(){ backToRoleSelect(document.getElementById('parent-shell'), 'p'); });
+    parentBell.insertAdjacentElement('afterend', switchBtn);
+  }
+
+  // ---- Login ----
+  document.getElementById('teacher-login-btn').addEventListener('click', function(){
+    var shell = document.getElementById('teacher-shell');
+    shell.classList.add('logged-in');
+    showScreen(shell, 't', 'dashboard');
+  });
+  document.getElementById('parent-login-btn').addEventListener('click', function(){
+    var shell = document.getElementById('parent-shell');
+    shell.classList.add('logged-in');
+    showScreen(shell, 'p', 'dashboard');
+  });
+  document.getElementById('teacher-logout-btn').addEventListener('click', function(){
+    backToRoleSelect(document.getElementById('teacher-shell'), 't');
+  });
+
+  function showScreen(shell, prefix, name){
+    shell.querySelectorAll('.screen').forEach(function(s){ s.classList.toggle('active', s.id === prefix + '-' + name); });
+    shell.querySelectorAll('.nav-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.screen === name); });
+    var ov = shell.querySelector('.overlay');
+    if(ov) ov.classList.remove('open');
+  }
+
+  // ---- Bottom nav ----
+  document.querySelectorAll('.nav-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var shell = btn.closest('.phone-screen');
+      showScreen(shell, shell.dataset.prefix, btn.dataset.screen);
+    });
+  });
+
+  // ---- Dashboard quick links to a tab (optionally opening a segmented view) ----
+  document.querySelectorAll('[data-screen-link]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var shell = el.closest('.phone-screen');
+      showScreen(shell, shell.dataset.prefix, el.dataset.screenLink);
+      if(el.dataset.seg){
+        var target = shell.querySelector('.segmented button[data-view="' + el.dataset.seg + '"]');
+        if(target) target.click();
+      }
+    });
+  });
+
+  // ---- Overlays ----
+  document.querySelectorAll('[data-open-overlay]').forEach(function(el){
+    el.addEventListener('click', function(){
+      var shell = el.closest('.phone-screen');
+      var overlay = shell.querySelector('.overlay');
+      overlay.querySelectorAll('.ov-panel').forEach(function(p){ p.classList.toggle('active', p.dataset.panel === el.dataset.openOverlay); });
+      overlay.classList.add('open');
+    });
+  });
+  document.querySelectorAll('.ov-back').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      btn.closest('.overlay').classList.remove('open');
+    });
+  });
+
+  // ---- Grade chips (Classes screen locked-class demo) ----
+  document.querySelectorAll('.grade-chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      var row = chip.closest('.grade-chip-row');
+      row.querySelectorAll('.grade-chip').forEach(function(c){ c.classList.remove('active'); });
+      chip.classList.add('active');
+      var screen = chip.closest('.screen');
+      var lockedNote = screen.querySelector('#t-locked-note');
+      var dataPanel = screen.querySelector('#t-classes-data');
+      if(chip.hasAttribute('data-locked')){
+        if(lockedNote) lockedNote.style.display = 'block';
+        if(dataPanel) dataPanel.style.display = 'none';
+      } else {
+        if(lockedNote) lockedNote.style.display = 'none';
+        if(dataPanel) dataPanel.style.display = 'block';
+      }
+    });
+  });
+
+  // ---- Generic chip selects (single-select within a group) ----
+  document.querySelectorAll('.chip-select').forEach(function(group){
+    group.querySelectorAll('.chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        group.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('active'); });
+        chip.classList.add('active');
+      });
+    });
+  });
+  document.querySelectorAll('.chip-group').forEach(function(group){
+    group.querySelectorAll('.g-chip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        group.querySelectorAll('.g-chip').forEach(function(c){ c.classList.remove('active'); });
+        chip.classList.add('active');
+      });
+    });
+  });
+
+  // ---- Attendance mark buttons ----
+  document.querySelectorAll('.att-row').forEach(function(row){
+    row.querySelectorAll('.att-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        row.querySelectorAll('.att-btn').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+      });
+    });
+  });
+
+  // ---- Segmented controls (scoped by data-seg-group) ----
+  document.querySelectorAll('.segmented').forEach(function(seg){
+    var groupName = seg.dataset.segGroup;
+    seg.querySelectorAll('button').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+        btn.classList.add('active');
+        var shell = seg.closest('.phone-screen');
+        shell.querySelectorAll('.seg-view[data-seg-group="' + groupName + '"]').forEach(function(v){
+          v.classList.toggle('show', v.dataset.viewPanel === btn.dataset.view);
+        });
+      });
+    });
+  });
+
+  // ---- Request meeting ----
+  var reqBtn = document.getElementById('request-meeting-btn');
+  if(reqBtn){
+    reqBtn.addEventListener('click', function(){
+      document.getElementById('meeting-confirm').classList.add('show');
+    });
+  }
+
+  // ---- Language toggle (EN / Urdu) ----
+  document.querySelectorAll('.lang-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.lang-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      var lang = btn.dataset.lang;
+      document.querySelectorAll('[data-en]').forEach(function(el){
+        el.textContent = lang === 'ur' ? el.dataset.ur : el.dataset.en;
+        el.classList.toggle('ur', lang === 'ur');
+      });
+    });
+  });
+})();
+
+</script>
+
+</body>
+</html>
