@@ -42,7 +42,8 @@ async function signIn([email, password]) {
     body: JSON.stringify({ email, password }),
   });
   const body = await res.json();
-  if (!body.access_token) throw new Error(`sign-in failed for ${email}: ${body.error_description ?? body.msg}`);
+  if (!body.access_token)
+    throw new Error(`sign-in failed for ${email}: ${body.error_description ?? body.msg}`);
   return body.access_token;
 }
 
@@ -85,10 +86,26 @@ check(
 );
 
 console.log('\nTenant isolation');
-check('Greenwood teacher -> students', (await get(tokens.teacherGreenwood, 'students?select=id')).length, 32);
-check('Greenwood teacher -> attendance', (await get(tokens.teacherGreenwood, 'attendance?select=id&limit=2000')).length, 832);
-check('Crescent teacher  -> students', (await get(tokens.teacherCrescent, 'students?select=id')).length, 2);
-check('Crescent teacher  -> attendance', (await get(tokens.teacherCrescent, 'attendance?select=id&limit=2000')).length, 12);
+check(
+  'Greenwood teacher -> students',
+  (await get(tokens.teacherGreenwood, 'students?select=id')).length,
+  32,
+);
+check(
+  'Greenwood teacher -> attendance',
+  (await get(tokens.teacherGreenwood, 'attendance?select=id&limit=2000')).length,
+  832,
+);
+check(
+  'Crescent teacher  -> students',
+  (await get(tokens.teacherCrescent, 'students?select=id')).length,
+  2,
+);
+check(
+  'Crescent teacher  -> attendance',
+  (await get(tokens.teacherCrescent, 'attendance?select=id&limit=2000')).length,
+  12,
+);
 
 console.log('\nRole scoping');
 check(
@@ -96,7 +113,11 @@ check(
   (await get(tokens.teacherGreenwood, 'classes?select=id')).length,
   1,
 );
-check('admin sees every class in the school', (await get(tokens.adminGreenwood, 'classes?select=id')).length, 4);
+check(
+  'admin sees every class in the school',
+  (await get(tokens.adminGreenwood, 'classes?select=id')).length,
+  4,
+);
 check(
   'guardian of one child sees one child',
   (await get(tokens.parentMalik, 'students?select=full_name')).map((s) => s.full_name),
@@ -104,7 +125,9 @@ check(
 );
 check(
   'guardian of siblings sees both',
-  (await get(tokens.parentIqbal, 'students?select=full_name&order=full_name')).map((s) => s.full_name),
+  (await get(tokens.parentIqbal, 'students?select=full_name&order=full_name')).map(
+    (s) => s.full_name,
+  ),
   ['Hamza Iqbal', 'Zainab Iqbal'],
 );
 
@@ -117,9 +140,13 @@ const row = {
   date: '2026-09-09',
   status: 'present',
 };
-check('parent cannot write attendance', (await post(tokens.parentMalik, 'attendance', row)).status, 403);
 check(
-  'teacher cannot write another school\'s attendance',
+  'parent cannot write attendance',
+  (await post(tokens.parentMalik, 'attendance', row)).status,
+  403,
+);
+check(
+  "teacher cannot write another school's attendance",
   (await post(tokens.teacherCrescent, 'attendance', { ...row, status: 'absent' })).status,
   403,
 );

@@ -107,24 +107,38 @@ export const radius = {
 } as const;
 
 export const font = {
-  /** Body and UI. */
-  body: 'Inter',
+  /** Body and UI. Names are the families registered by @expo-google-fonts. */
+  body: 'Inter_400Regular',
+  bodyMedium: 'Inter_500Medium',
+  bodySemi: 'Inter_600SemiBold',
+  bodyBold: 'Inter_700Bold',
   /** Headings, numerics, brand. */
-  display: 'Manrope',
-  /** Urdu. Android renders Urdu badly without this bundled. */
+  display: 'Manrope_800ExtraBold',
+  displayBold: 'Manrope_700Bold',
+  /** Urdu. Android renders Urdu badly without this bundled. Milestone 5. */
   urdu: 'NotoNastaliqUrdu',
 } as const;
 
 export const type = {
   pageTitle: { fontFamily: font.display, fontSize: 21, color: color.navyDeep, letterSpacing: -0.2 },
+  screenTitle: {
+    fontFamily: font.display,
+    fontSize: 24,
+    color: color.navyDeep,
+    letterSpacing: -0.3,
+  },
+  loginTitle: { fontFamily: font.display, fontSize: 19, color: color.navyDeep },
   sectionTitle: { fontFamily: font.display, fontSize: 14.5, color: color.ink },
+  cardTitle: { fontFamily: font.display, fontSize: 14.5, color: color.navyDeep },
   overlayTitle: { fontFamily: font.display, fontSize: 15.5, color: color.ink },
   eyebrow: { fontFamily: font.body, fontSize: 12, color: color.inkSoft },
-  listTitle: { fontFamily: font.body, fontSize: 13.5, color: color.ink },
+  body: { fontFamily: font.body, fontSize: 13.5, color: color.ink },
+  listTitle: { fontFamily: font.bodySemi, fontSize: 13.5, color: color.ink },
   listSub: { fontFamily: font.body, fontSize: 11.5, color: color.inkSoft },
-  badge: { fontFamily: font.body, fontSize: 11 },
+  faint: { fontFamily: font.body, fontSize: 11, color: color.inkFaint },
+  badge: { fontFamily: font.bodySemi, fontSize: 11 },
   statValue: { fontFamily: font.display, fontSize: 16, color: color.ink },
-  navLabel: { fontFamily: font.body, fontSize: 10 },
+  navLabel: { fontFamily: font.bodyMedium, fontSize: 10 },
 } as const;
 
 /**

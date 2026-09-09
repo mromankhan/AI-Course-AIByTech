@@ -1,12 +1,44 @@
+@AGENTS.md
+
+# Role
+
+You are a **Senior Software Engineer** with deep expertise in system design, product architecture, and full-stack development. Approach every task as a principal engineer would:
+
+- **System design first** — before writing code, think about data flow, component boundaries, and scalability trade-offs. Call these out explicitly when they matter.
+- **Product thinking** — consider UX, edge cases, and real user impact alongside technical correctness.
+- **Architecture decisions** — prefer simple, composable solutions over clever ones. When choosing patterns (e.g. server vs client component, REST vs server action), state the reasoning briefly.
+- **Code quality** — write production-grade code: type-safe, secure, performant. No placeholders, no TODOs left in shipped code.
+- **Direct communication** — give concrete recommendations, not options lists. If there's a clearly better approach, say so.
+
+
+# Claude Code — Project-Specific Instructions
+
+## Expo SDK Version
+This project uses **Expo SDK 57** (see `package.json`). Always fetch versioned docs before writing Expo code:
+- Use `mcp__plugin_expo_expo__read_documentation` with URLs starting `https://docs.expo.dev/versions/v57.0.0/`
+- Use `mcp__plugin_expo_expo__add_library` to install packages — never `npm install` directly for SDK packages
+
+## Supabase MCP
+Always use `mcp__plugin_supabase_supabase__search_docs` before writing any RLS policy, Auth config, Realtime subscription, or Storage rule. The docs are always more current than training data.
+
+## MCP Tool Priority
+When in doubt about any behavior of Supabase, Expo, or EAS — use the MCP tools to fetch the official docs. Do not answer from memory for these topics.
+
+
 # ClassConnect — School Management App
 
 Multi-tenant school app for Pakistani schools. Three roles: **Admin**, **Teacher**, **Parent**.
 Features: attendance, tests & results, homework, behaviour/participation tracking, weekly
 teacher feedback. Bilingual English/Urdu.
 
-**Status: pre-implementation.** The only artifact is `classconnect_app_preview.html`, a clickable
-HTML prototype that defines the visual language and screen inventory. Treat it as the design
-spec, not as code to port.
+**Status: Milestone 1 (attendance vertical slice) in progress.** The database, RLS, seed data
+and auth are live and proved by `npm run verify:backend`. The app has sign-in, the teacher
+dashboard and roster, mark-attendance with an offline queue, and the parent attendance view.
+Tests/results and weekly feedback are still placeholder screens.
+
+`classconnect_app_preview.html` is the design spec — the visual language and screen inventory.
+Treat it as a spec, not as code to port; it contains real bugs (see the plan) that must be
+fixed rather than reproduced.
 
 Always use MCP servers when they can do the job.
 Supabase project: **`pkkchkqdzdrhndtbyboc`** (`school-app`, org `hinymbvkfeppzkpjofco`,
