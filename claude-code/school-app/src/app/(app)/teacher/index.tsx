@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, router, type Href } from 'expo-router';
 import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 
 import {
@@ -196,16 +196,18 @@ function Quick({
   label,
   disabled,
 }: {
-  href: React.ComponentProps<typeof Link>['href'];
+  href: Href;
   icon: IconName;
   tone: keyof typeof semantic;
   label: string;
   disabled?: boolean;
 }) {
   const s = semantic[tone];
-  const body = (
+  // Plain Pressable + router.push: <Link asChild> spreads a function style into `{}`.
+  return (
     <Pressable
       disabled={disabled}
+      onPress={() => router.push(href)}
       style={({ pressed }) => [
         styles.quick,
         pressed && styles.quickPressed,
@@ -218,13 +220,6 @@ function Quick({
         {label}
       </T>
     </Pressable>
-  );
-  return disabled ? (
-    body
-  ) : (
-    <Link href={href} asChild>
-      {body}
-    </Link>
   );
 }
 

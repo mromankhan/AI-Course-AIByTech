@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -54,30 +54,31 @@ function RoleButton({
   title,
   sub,
 }: {
-  href: '/sign-in/staff' | '/sign-in/parent';
+  href: Href;
   icon: IconName;
   tint: string;
   iconColor: string;
   title: string;
   sub: string;
 }) {
+  // Not <Link asChild>: its Slot merges styles by object spread, which turns a
+  // function-style Pressable into `{}` and renders the button unstyled.
   return (
-    <Link href={href} asChild>
-      <Pressable
-        accessibilityRole="button"
-        style={({ pressed }) => [styles.role, pressed && styles.rolePressed]}>
-        <View style={[styles.roleIcon, { backgroundColor: tint }]}>
-          <Icon name={icon} size={22} stroke={iconColor} />
-        </View>
-        <View style={styles.roleText}>
-          <T variant="cardTitle">{title}</T>
-          <T variant="listSub" style={styles.roleSub}>
-            {sub}
-          </T>
-        </View>
-        <Icon name="chevron" size={18} stroke={color.inkFaint} />
-      </Pressable>
-    </Link>
+    <Pressable
+      accessibilityRole="button"
+      onPress={() => router.push(href)}
+      style={({ pressed }) => [styles.role, pressed && styles.rolePressed]}>
+      <View style={[styles.roleIcon, { backgroundColor: tint }]}>
+        <Icon name={icon} size={22} stroke={iconColor} />
+      </View>
+      <View style={styles.roleText}>
+        <T variant="cardTitle">{title}</T>
+        <T variant="listSub" style={styles.roleSub}>
+          {sub}
+        </T>
+      </View>
+      <Icon name="chevron" size={18} stroke={color.inkFaint} />
+    </Pressable>
   );
 }
 
