@@ -1,8 +1,7 @@
 import { Tabs } from 'expo-router';
-
-import { color, font } from '@/theme';
 import type { ColorValue } from 'react-native';
 
+import { color, font } from '@/theme';
 import { Icon, type IconName } from '@/ui/icon';
 
 function tab(name: IconName) {
@@ -12,7 +11,7 @@ function tab(name: IconName) {
   return TabIcon;
 }
 
-export default function TeacherTabs() {
+export default function AdminTabs() {
   return (
     <Tabs
       screenOptions={{
@@ -24,10 +23,13 @@ export default function TeacherTabs() {
         sceneStyle: { backgroundColor: color.bg },
       }}>
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: tab('home') }} />
-      <Tabs.Screen name="classes" options={{ title: 'Classes', tabBarIcon: tab('users') }} />
-      <Tabs.Screen name="tests" options={{ title: 'Tests', tabBarIcon: tab('chart') }} />
-      <Tabs.Screen name="feedback" options={{ title: 'Feedback', tabBarIcon: tab('message') }} />
+      <Tabs.Screen name="classes" options={{ title: 'Classes', tabBarIcon: tab('book') }} />
+      <Tabs.Screen name="students" options={{ title: 'Students', tabBarIcon: tab('graduation') }} />
+      <Tabs.Screen name="people" options={{ title: 'People', tabBarIcon: tab('users') }} />
       <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarIcon: tab('user') }} />
+      {/* Reached from Home, not from the bar. */}
+      <Tabs.Screen name="setup" options={{ href: null }} />
+      <Tabs.Screen name="class-form" options={{ href: null }} />
     </Tabs>
   );
 }

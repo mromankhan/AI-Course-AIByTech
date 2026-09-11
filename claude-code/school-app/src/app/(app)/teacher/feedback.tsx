@@ -1,12 +1,16 @@
-import { ComingSoon } from '@/ui/coming-soon';
+import { useCurrentSession, useMyClass } from '@/data/queries';
+import { FeedbackList } from '@/features/feedback/feedback-list';
+import { Screen } from '@/ui/screen';
 
-export default function Feedback() {
+export default function TeacherFeedback() {
+  const session = useCurrentSession();
+  const { klass } = useMyClass();
+
   return (
-    <ComingSoon
-      title="Weekly Feedback"
-      icon="message"
-      milestone="Milestone 3"
-      what="Per-student weekly feedback across academics, homework, behaviour and participation."
-    />
+    <Screen
+      eyebrow={klass ? `${klass.grade} — Section ${klass.section}` : ''}
+      title="Weekly Feedback">
+      <FeedbackList classId={klass?.id} sessionId={session.data?.id} />
+    </Screen>
   );
 }

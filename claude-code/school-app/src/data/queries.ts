@@ -16,9 +16,36 @@ export function monthKey(date = today()): string {
 }
 
 /** Throws on a PostgREST error so TanStack Query surfaces it instead of a null row. */
-function unwrap<T>(res: PostgrestSingleResponse<T>): T {
+export function unwrap<T>(res: PostgrestSingleResponse<T>): T {
   if (res.error) throw new Error(res.error.message);
   return res.data;
+}
+
+function fmt(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+/** Monday of the ISO week a date falls in — feedback_entries.week_start. */
+export function mondayOf(date = today()): string {
+  const d = new Date(`${date}T00:00:00`);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return fmt(d);
+}
+
+export function addDays(date: string, delta: number): string {
+  const d = new Date(`${date}T00:00:00`);
+  d.setDate(d.getDate() + delta);
+  return fmt(d);
+}
+
+/** "Mon, 31 Aug" style short date used all over the lists. */
+export function shortDate(iso: string, weekday = false): string {
+  return new Date(`${iso}T00:00:00`).toLocaleDateString('en-GB', {
+    ...(weekday ? { weekday: 'short' as const } : {}),
+    day: 'numeric',
+    month: 'short',
+  });
 }
 
 export function useMe() {
@@ -81,6 +108,17 @@ export function useMyClasses() {
   });
 }
 
+/**
+ * The class a teacher's tabs are about. A class teacher has exactly one; an
+ * admin using the shared flows passes an explicit classId instead.
+ */
+export function useMyClass() {
+  const me = useMe();
+  const classes = useMyClasses();
+  const klass = classes.data?.find((c) => c.class_teacher_id === me.data?.id) ?? classes.data?.[0];
+  return { klass, isPending: me.isPending || classes.isPending };
+}
+
 export function useClassRoster(classId: string | undefined, sessionId: string | undefined) {
   return useQuery({
     queryKey: ['roster', classId, sessionId],
@@ -128,23 +166,6 @@ export function useClassDaySummary(classId: string | undefined, date: string) {
           .eq('class_id', classId!)
           .eq('date', date)
           .maybeSingle(),
-      ),
-  });
-}
-
-export function useUpcomingTests(classId: string | undefined) {
-  return useQuery({
-    queryKey: ['upcoming-tests', classId],
-    enabled: !!classId,
-    queryFn: async () =>
-      unwrap(
-        await supabase
-          .from('tests')
-          .select('id, title, test_date, total_marks, status, subject:subjects(name_en)')
-          .eq('class_id', classId!)
-          .gte('test_date', today())
-          .order('test_date')
-          .limit(5),
       ),
   });
 }

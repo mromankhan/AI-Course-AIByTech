@@ -8,8 +8,8 @@ import {
   useMe,
   useMyClasses,
   usePendingFeedbackCount,
-  useUpcomingTests,
 } from '@/data/queries';
+import { useUpcomingTests } from '@/data/results';
 import { StatusBar } from '@/features/attendance/status-bar';
 import { color, radius, semantic, shadow, space } from '@/theme';
 import { Icon, type IconName } from '@/ui/icon';
@@ -109,7 +109,7 @@ export default function TeacherDashboard() {
       <SectionTitle>Quick actions</SectionTitle>
       <View style={styles.grid}>
         <Quick
-          href={{ pathname: '/teacher/attendance', params: { classId: myClass?.id ?? '' } }}
+          href={{ pathname: '/attendance', params: { classId: myClass?.id ?? '' } }}
           icon="calendarCheck"
           tone="safe"
           label={marked === 0 ? 'Mark Attendance' : 'Edit Attendance'}

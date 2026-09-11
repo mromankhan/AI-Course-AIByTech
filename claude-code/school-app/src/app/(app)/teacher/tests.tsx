@@ -1,12 +1,16 @@
-import { ComingSoon } from '@/ui/coming-soon';
+import { useCurrentSession, useMyClass } from '@/data/queries';
+import { TestList } from '@/features/tests/test-list';
+import { Screen } from '@/ui/screen';
 
-export default function Tests() {
+export default function TeacherTests() {
+  const session = useCurrentSession();
+  const { klass } = useMyClass();
+
   return (
-    <ComingSoon
-      title="Tests & Results"
-      icon="chart"
-      milestone="Milestone 2"
-      what="Test planner, results entry and grade bands. The tests, test_results and grade_bands tables are already live."
-    />
+    <Screen
+      eyebrow={klass ? `${klass.grade} — Section ${klass.section}` : ''}
+      title="Tests & Results">
+      <TestList classId={klass?.id} sessionId={session.data?.id} />
+    </Screen>
   );
 }

@@ -31,10 +31,11 @@ Multi-tenant school app for Pakistani schools. Three roles: **Admin**, **Teacher
 Features: attendance, tests & results, homework, behaviour/participation tracking, weekly
 teacher feedback. Bilingual English/Urdu.
 
-**Status: Milestone 1 (attendance vertical slice) in progress.** The database, RLS, seed data
-and auth are live and proved by `npm run verify:backend`. The app has sign-in, the teacher
-dashboard and roster, mark-attendance with an offline queue, and the parent attendance view.
-Tests/results and weekly feedback are still placeholder screens.
+**Status: all three roles are functional.** Attendance (offline queue), tests & results
+(offline queue), weekly feedback, and the admin role (classes, subjects, students,
+enrollments, guardians, staff/parent provisioning, sessions, holidays, grading scale) are
+built and proved by `npm run verify:backend` (38 assertions). Still open: push notifications
+(needs a dev build), Urdu strings, the demo seed script. See `docs/running.md`.
 
 `classconnect_app_preview.html` is the design spec — the visual language and screen inventory.
 Treat it as a spec, not as code to port; it contains real bugs (see the plan) that must be

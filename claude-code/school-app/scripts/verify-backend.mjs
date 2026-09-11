@@ -59,11 +59,34 @@ async function get(token, path) {
   return res.json();
 }
 
-async function post(token, table, row) {
+async function post(token, table, row, extra = {}) {
   const res = await fetch(`${URL}/rest/v1/${table}`, {
     method: 'POST',
-    headers: { apikey: KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    headers: {
+      apikey: KEY,
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      Prefer: 'return=representation',
+      ...extra,
+    },
     body: JSON.stringify(row),
+  });
+  return { status: res.status, body: await res.json() };
+}
+
+async function del(token, path) {
+  const res = await fetch(`${URL}/rest/v1/${path}`, {
+    method: 'DELETE',
+    headers: { apikey: KEY, Authorization: `Bearer ${token}` },
+  });
+  return res.status;
+}
+
+async function fn(token, name, body) {
+  const res = await fetch(`${URL}/functions/v1/${name}`, {
+    method: 'POST',
+    headers: { apikey: KEY, Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
   });
   return { status: res.status, body: await res.json() };
 }
@@ -91,10 +114,11 @@ check(
   (await get(tokens.teacherGreenwood, 'students?select=id')).length,
   32,
 );
+// Seeded 832 rows; anything marked from the app since is also Greenwood's.
 check(
-  'Greenwood teacher -> attendance',
-  (await get(tokens.teacherGreenwood, 'attendance?select=id&limit=2000')).length,
-  832,
+  'Greenwood teacher -> attendance (>= 832 seeded)',
+  (await get(tokens.teacherGreenwood, 'attendance?select=id&limit=2000')).length >= 832,
+  true,
 );
 check(
   'Crescent teacher  -> students',
@@ -159,6 +183,194 @@ const [ayesha] = await get(
 // PostgREST returns numeric as a JSON number, so compare numerically.
 check('Ayesha August attendance = 90% (prototype figure)', Number(ayesha.attendance_pct), 90);
 check('...over 20 school days', ayesha.days_marked, 20);
+
+console.log('\nTests & results (views compute everything; trigger flips status)');
+{
+  const teacher = tokens.teacherGreenwood;
+  const [klass] = await get(teacher, 'classes?select=id,school_id');
+  const [session] = await get(teacher, 'sessions?select=id&is_current=eq.true');
+  const [subject] = await get(teacher, `subjects?select=id&class_id=eq.${klass.id}&limit=1`);
+  const roster = await get(
+    teacher,
+    `enrollments?select=id&class_id=eq.${klass.id}&session_id=eq.${session.id}&order=roll_no&limit=3`,
+  );
+
+  const created = await post(teacher, 'tests', {
+    school_id: klass.school_id,
+    session_id: session.id,
+    class_id: klass.id,
+    subject_id: subject.id,
+    title: 'verify-backend probe',
+    test_date: '2026-09-01',
+    total_marks: 50,
+  });
+  check('teacher can schedule a test', created.status, 201);
+  const test = created.body[0];
+  check('new test starts scheduled', test.status, 'scheduled');
+
+  check(
+    'parent cannot enter results',
+    (
+      await post(tokens.parentMalik, 'test_results', {
+        school_id: klass.school_id,
+        test_id: test.id,
+        enrollment_id: roster[0].id,
+        obtained_marks: 50,
+      })
+    ).status,
+    403,
+  );
+
+  const over = await post(teacher, 'test_results', {
+    school_id: klass.school_id,
+    test_id: test.id,
+    enrollment_id: roster[0].id,
+    obtained_marks: 51,
+  });
+  check('marks over total are refused by the trigger', over.body.code, 'P0001');
+
+  const results = await post(
+    teacher,
+    'test_results',
+    [45, 30, 20].map((m, i) => ({
+      school_id: klass.school_id,
+      test_id: test.id,
+      enrollment_id: roster[i].id,
+      obtained_marks: m,
+    })),
+    { Prefer: 'resolution=merge-duplicates,return=representation' },
+  );
+  check('teacher upserts three results', results.status, 201);
+
+  const [after] = await get(teacher, `tests?select=status&id=eq.${test.id}`);
+  check('status flips to results_entered automatically', after.status, 'results_entered');
+
+  const [summary] = await get(
+    tokens.parentMalik,
+    `test_result_summary?select=pct,grade,rank_in_class,class_size,class_avg_pct&test_id=eq.${test.id}`,
+  );
+  check('parent sees own result: 45/50 = 90% = A, rank 1 of 3', summary, {
+    pct: 90.0,
+    grade: 'A',
+    rank_in_class: 1,
+    class_size: 3,
+    class_avg_pct: 63.3,
+  });
+  check(
+    'parent sees only own row of the summary',
+    (await get(tokens.parentMalik, `test_result_summary?select=id&test_id=eq.${test.id}`)).length,
+    1,
+  );
+  const [stats] = await get(
+    teacher,
+    `test_stats?select=results_count,highest&test_id=eq.${test.id}`,
+  );
+  check('test_stats for the teacher', stats, { results_count: 3, highest: 45 });
+
+  check('teacher deletes the probe test', await del(teacher, `tests?id=eq.${test.id}`), 204);
+  check(
+    'results cascade with it',
+    (await get(teacher, `test_results?select=id&test_id=eq.${test.id}`)).length,
+    0,
+  );
+}
+
+console.log('\nWeekly feedback (drafts stay private until sent)');
+{
+  const teacher = tokens.teacherGreenwood;
+  const [enrAyesha] = await get(
+    tokens.parentMalik,
+    'enrollments?select=id,school_id,session_id&limit=1',
+  );
+  const entry = {
+    school_id: enrAyesha.school_id,
+    session_id: enrAyesha.session_id,
+    enrollment_id: enrAyesha.id,
+    week_start: '2026-08-31',
+    academic: 'good',
+    homework: 'completed',
+    behaviour: 'excellent',
+    participation: 'active',
+    strengths: 'verify-backend probe',
+  };
+  const draft = await post(teacher, 'feedback_entries', entry);
+  check('teacher saves a draft', draft.status, 201);
+  check(
+    'parent cannot see the draft',
+    (await get(tokens.parentMalik, 'feedback_sent?select=id&week_start=eq.2026-08-31')).length,
+    0,
+  );
+  const sent = await post(
+    teacher,
+    'feedback_entries?on_conflict=enrollment_id,week_start',
+    { ...entry, sent_at: new Date().toISOString() },
+    { Prefer: 'resolution=merge-duplicates,return=representation' },
+  );
+  check('sending upserts the same row', sent.body[0]?.id, draft.body[0].id);
+  check(
+    'parent sees it once sent',
+    (await get(tokens.parentMalik, 'feedback_sent?select=strengths&week_start=eq.2026-08-31')).map(
+      (f) => f.strengths,
+    ),
+    ['verify-backend probe'],
+  );
+  check(
+    'sibling guardian does not see it',
+    (await get(tokens.parentIqbal, 'feedback_sent?select=id&week_start=eq.2026-08-31')).length,
+    0,
+  );
+  check('cleanup', await del(teacher, `feedback_entries?id=eq.${draft.body[0].id}`), 204);
+}
+
+console.log('\nAccount provisioning (Edge Function, admin only)');
+{
+  check(
+    'teacher is refused',
+    (await fn(tokens.teacherGreenwood, 'provision-user', { kind: 'teacher' })).status,
+    403,
+  );
+  check(
+    'admin: bad PIN is validated',
+    (
+      await fn(tokens.adminGreenwood, 'provision-user', {
+        kind: 'parent',
+        full_name: 'Probe',
+        phone: '0300 0000000',
+        pin: '12',
+        student_ids: ['00000000-0000-0000-0000-000000000000'],
+      })
+    ).body.error,
+    'PIN must be exactly 6 digits',
+  );
+  check(
+    'admin: cannot link a student outside the school',
+    (
+      await fn(tokens.adminGreenwood, 'provision-user', {
+        kind: 'parent',
+        full_name: 'Probe',
+        phone: '0300 0000000',
+        pin: '123456',
+        student_ids: ['00000000-0000-0000-0000-000000000000'],
+      })
+    ).body.error,
+    'Unknown student',
+  );
+  check(
+    'admin: duplicate phone is a clean 409',
+    (
+      await fn(tokens.adminGreenwood, 'provision-user', {
+        kind: 'parent',
+        full_name: 'Probe',
+        phone: '0300 1234567',
+        pin: '123456',
+        student_ids: (await get(tokens.adminGreenwood, 'students?select=id&limit=1')).map(
+          (s) => s.id,
+        ),
+      })
+    ).status,
+    409,
+  );
+}
 
 console.log(failures === 0 ? '\nAll checks passed.\n' : `\n${failures} check(s) FAILED.\n`);
 process.exit(failures === 0 ? 0 : 1);

@@ -70,6 +70,13 @@ export type Database = {
             referencedColumns: ["enrollment_id"]
           },
           {
+            foreignKeyName: "attendance_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
             foreignKeyName: "attendance_marked_by_fkey"
             columns: ["marked_by"]
             isOneToOne: false
@@ -268,6 +275,13 @@ export type Database = {
             columns: ["enrollment_id"]
             isOneToOne: false
             referencedRelation: "feedback_pending"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
             referencedColumns: ["enrollment_id"]
           },
           {
@@ -688,11 +702,25 @@ export type Database = {
             referencedColumns: ["enrollment_id"]
           },
           {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
             foreignKeyName: "test_results_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
             referencedRelation: "schools"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "test_stats"
+            referencedColumns: ["test_id"]
           },
           {
             foreignKeyName: "test_results_test_id_fkey"
@@ -856,6 +884,88 @@ export type Database = {
           },
         ]
       }
+      feedback_sent: {
+        Row: {
+          academic: Database["public"]["Enums"]["feedback_academic"] | null
+          areas_to_improve: string | null
+          behaviour: Database["public"]["Enums"]["feedback_behaviour"] | null
+          class_id: string | null
+          concern: string | null
+          created_at: string | null
+          created_by: string | null
+          enrollment_id: string | null
+          homework: Database["public"]["Enums"]["feedback_homework"] | null
+          id: string | null
+          participation:
+            | Database["public"]["Enums"]["feedback_participation"]
+            | null
+          school_id: string | null
+          sent_at: string | null
+          session_id: string | null
+          strengths: string | null
+          student_id: string | null
+          updated_at: string | null
+          week_start: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollments_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_pending"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_entries_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_attendance_summary: {
         Row: {
           absent_days: number | null
@@ -885,6 +995,13 @@ export type Database = {
             referencedColumns: ["enrollment_id"]
           },
           {
+            foreignKeyName: "attendance_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
             foreignKeyName: "attendance_school_id_fkey"
             columns: ["school_id"]
             isOneToOne: false
@@ -900,8 +1017,215 @@ export type Database = {
           },
         ]
       }
+      student_standing: {
+        Row: {
+          avg_pct: number | null
+          class_id: string | null
+          class_size: number | null
+          enrollment_id: string | null
+          grade: string | null
+          rank_in_class: number | null
+          school_id: string | null
+          session_id: string | null
+          tests_taken: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrollments_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollments_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrollments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subject_averages: {
+        Row: {
+          avg_pct: number | null
+          enrollment_id: string | null
+          grade: string | null
+          name_en: string | null
+          name_ur: string | null
+          school_id: string | null
+          session_id: string | null
+          sort_order: number | null
+          subject_id: string | null
+          tests_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_pending"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "test_results_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tests_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_result_summary: {
+        Row: {
+          class_avg_pct: number | null
+          class_id: string | null
+          class_size: number | null
+          enrollment_id: string | null
+          grade: string | null
+          id: string | null
+          obtained_marks: number | null
+          pct: number | null
+          rank_in_class: number | null
+          school_id: string | null
+          session_id: string | null
+          subject_id: string | null
+          test_date: string | null
+          test_id: string | null
+          title: string | null
+          total_marks: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "enrollments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "feedback_pending"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "test_results_enrollment_id_fkey"
+            columns: ["enrollment_id"]
+            isOneToOne: false
+            referencedRelation: "student_standing"
+            referencedColumns: ["enrollment_id"]
+          },
+          {
+            foreignKeyName: "test_results_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_results_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "test_stats"
+            referencedColumns: ["test_id"]
+          },
+          {
+            foreignKeyName: "test_results_test_id_fkey"
+            columns: ["test_id"]
+            isOneToOne: false
+            referencedRelation: "tests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tests_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tests_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tests_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_stats: {
+        Row: {
+          avg_pct: number | null
+          class_id: string | null
+          highest: number | null
+          lowest: number | null
+          results_count: number | null
+          school_id: string | null
+          test_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tests_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tests_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      current_week_start: { Args: never; Returns: string }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       grade_letter: {
         Args: { p_pct: number; p_school_id: string }

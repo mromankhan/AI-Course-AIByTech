@@ -7,7 +7,10 @@ import type { ColorValue } from 'react-native';
 import { Icon, type IconName } from '@/ui/icon';
 
 function tab(name: IconName) {
-  return ({ color: c }: { color: ColorValue }) => <Icon name={name} size={22} stroke={String(c)} />;
+  function TabIcon({ color: c }: { color: ColorValue }) {
+    return <Icon name={name} size={22} stroke={String(c)} />;
+  }
+  return TabIcon;
 }
 
 export default function ParentTabs() {

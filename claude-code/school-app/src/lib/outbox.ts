@@ -23,15 +23,23 @@ import type { Database } from '@/lib/database.types';
  */
 
 type AttendanceInsert = Database['public']['Tables']['attendance']['Insert'];
+type ResultInsert = Database['public']['Tables']['test_results']['Insert'];
 
-export type PendingWrite = {
-  client_uuid: string;
-  table: 'attendance';
-  payload: AttendanceInsert;
-  created_at: string;
-  attempts: number;
-  last_error: string | null;
-};
+/**
+ * Every queued table and the constraint its upsert resolves on. Adding a table
+ * here is the whole job — drain() groups rows by table and sends one batched
+ * upsert per group.
+ */
+const CONFLICT_KEYS = {
+  attendance: 'enrollment_id,date',
+  test_results: 'test_id,enrollment_id',
+} as const;
+
+export type OutboxTable = keyof typeof CONFLICT_KEYS;
+
+export type PendingWrite =
+  | { client_uuid: string; table: 'attendance'; payload: AttendanceInsert }
+  | { client_uuid: string; table: 'test_results'; payload: ResultInsert };
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null;
 
@@ -60,20 +68,52 @@ function db() {
  * rather than stacking a second one, so the last tap wins locally too.
  */
 export async function queueAttendance(payload: AttendanceInsert): Promise<string> {
-  const handle = await db();
   const clientUuid = payload.client_uuid ?? Crypto.randomUUID();
-  const row: AttendanceInsert = { ...payload, client_uuid: clientUuid };
+  await enqueue('attendance', clientUuid, { ...payload, client_uuid: clientUuid });
+  return clientUuid;
+}
 
+async function enqueue(table: OutboxTable, clientUuid: string, payload: object) {
+  const handle = await db();
   await handle.runAsync(
     `insert into pending_writes (client_uuid, table_name, payload, created_at)
-     values (?, 'attendance', ?, ?)
+     values (?, ?, ?, ?)
      on conflict (client_uuid) do update set payload = excluded.payload, last_error = null`,
     clientUuid,
-    JSON.stringify(row),
+    table,
+    JSON.stringify(payload),
     new Date().toISOString(),
   );
+}
 
-  return clientUuid;
+/** One queued row per (test, student): re-entering a mark replaces the old one. */
+export async function queueResult(payload: ResultInsert): Promise<void> {
+  const handle = await db();
+  const existing = await handle.getFirstAsync<{ client_uuid: string }>(
+    `select client_uuid from pending_writes
+     where table_name = 'test_results'
+       and json_extract(payload, '$.test_id') = ?
+       and json_extract(payload, '$.enrollment_id') = ?`,
+    payload.test_id,
+    payload.enrollment_id,
+  );
+  await enqueue('test_results', existing?.client_uuid ?? Crypto.randomUUID(), payload);
+}
+
+/** Queued marks for one test, keyed by enrollment — overlaid on the server rows. */
+export async function pendingForTest(testId: string): Promise<Record<string, number>> {
+  const handle = await db();
+  const rows = await handle.getAllAsync<{ payload: string }>(
+    `select payload from pending_writes
+     where table_name = 'test_results' and json_extract(payload, '$.test_id') = ?`,
+    testId,
+  );
+  const out: Record<string, number> = {};
+  for (const r of rows) {
+    const p = JSON.parse(r.payload) as ResultInsert;
+    out[p.enrollment_id] = p.obtained_marks;
+  }
+  return out;
 }
 
 /** Replaces any queued mark for the same student and date — one row per cell. */
@@ -130,14 +170,14 @@ async function pendingRows(): Promise<PendingWrite[]> {
     last_error: string | null;
   }>('select * from pending_writes order by created_at');
 
-  return rows.map((r) => ({
-    client_uuid: r.client_uuid,
-    table: 'attendance',
-    payload: JSON.parse(r.payload) as AttendanceInsert,
-    created_at: r.created_at,
-    attempts: r.attempts,
-    last_error: r.last_error,
-  }));
+  return rows.map(
+    (r) =>
+      ({
+        client_uuid: r.client_uuid,
+        table: r.table_name as OutboxTable,
+        payload: JSON.parse(r.payload),
+      }) as PendingWrite,
+  );
 }
 
 export type DrainResult = { sent: number; failed: number; remaining: number };
@@ -145,7 +185,7 @@ export type DrainResult = { sent: number; failed: number; remaining: number };
 let draining: Promise<DrainResult> | null = null;
 
 /**
- * Sends everything queued, oldest first, in one batched upsert.
+ * Sends everything queued, oldest first, in one batched upsert per table.
  *
  * A rejection that is the server's final answer — RLS refusing the write, or an
  * enrollment that no longer exists — must not be retried forever, so those rows
@@ -168,41 +208,43 @@ async function runDrain(): Promise<DrainResult> {
   const { data: auth } = await supabase.auth.getSession();
   if (!auth.session) return { sent: 0, failed: 0, remaining: rows.length };
 
-  const { error } = await supabase.from('attendance').upsert(
-    rows.map((r) => r.payload),
-    { onConflict: 'enrollment_id,date' },
-  );
+  const result: DrainResult = { sent: 0, failed: 0, remaining: 0 };
 
-  if (!error) {
-    await handle.runAsync(
-      `delete from pending_writes where client_uuid in (${rows.map(() => '?').join(',')})`,
-      ...rows.map((r) => r.client_uuid),
-    );
-    return { sent: rows.length, failed: 0, remaining: 0 };
+  for (const table of Object.keys(CONFLICT_KEYS) as OutboxTable[]) {
+    const group = rows.filter((r) => r.table === table);
+    if (group.length === 0) continue;
+    const ids = group.map((r) => r.client_uuid);
+    const marks = ids.map(() => '?').join(',');
+
+    // The union narrows per table; the cast keeps supabase-js's overloads happy.
+    const { error } = await supabase
+      .from(table)
+      .upsert(group.map((r) => r.payload) as never[], { onConflict: CONFLICT_KEYS[table] });
+
+    if (!error) {
+      await handle.runAsync(`delete from pending_writes where client_uuid in (${marks})`, ...ids);
+      result.sent += group.length;
+    } else if (isPermanent(error)) {
+      await handle.runAsync(`delete from pending_writes where client_uuid in (${marks})`, ...ids);
+      result.failed += group.length;
+    } else {
+      await handle.runAsync(
+        `update pending_writes set attempts = attempts + 1, last_error = ?
+         where client_uuid in (${marks})`,
+        error.message,
+        ...ids,
+      );
+      result.remaining += group.length;
+    }
   }
-
-  const permanent = isPermanent(error);
-  if (permanent) {
-    await handle.runAsync(
-      `delete from pending_writes where client_uuid in (${rows.map(() => '?').join(',')})`,
-      ...rows.map((r) => r.client_uuid),
-    );
-    return { sent: 0, failed: rows.length, remaining: 0 };
-  }
-
-  await handle.runAsync(
-    `update pending_writes set attempts = attempts + 1, last_error = ?
-     where client_uuid in (${rows.map(() => '?').join(',')})`,
-    error.message,
-    ...rows.map((r) => r.client_uuid),
-  );
-  return { sent: 0, failed: 0, remaining: rows.length };
+  return result;
 }
 
 /** PostgREST reports the HTTP status in `code` for RLS and constraint failures. */
 function isPermanent(error: { code?: string; message: string }): boolean {
   if (error.code === '42501') return true; // RLS refused it; retrying cannot help
-  if (error.code === '23503') return true; // enrollment no longer exists
+  if (error.code === '23503') return true; // enrollment or test no longer exists
+  if (error.code === 'P0001') return true; // a trigger rejected it (marks over total)
   return false;
 }
 

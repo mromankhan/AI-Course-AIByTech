@@ -15,6 +15,11 @@ credentials are deliberately weak and must never exist in a production project.
 | Admin (Crescent) | `admin@crescentschool.edu` | `Passw0rd!23` | Isolation fixture |
 | Teacher (Crescent) | `imran.shah@crescentschool.edu` | `Passw0rd!23` | Isolation fixture |
 
+New accounts are created only by an admin inside the app (People → Add, or Student → Link
+parent → Create). That calls the `provision-user` Edge Function, which runs with the
+service-role key, checks the caller's `user_role` claim is `admin`, and scopes the new
+profile to the caller's `school_id`. The source is in `supabase/functions/provision-user/`.
+
 **Parents never type an email.** The app derives one from the phone number:
 `+923001234567` → `p923001234567@parents.classconnect.local`. Only the derived
 address reaches Supabase Auth.
